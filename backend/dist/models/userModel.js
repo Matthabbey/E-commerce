@@ -29,6 +29,10 @@ const userSchema = new mongoose_1.default.Schema({
         type: String,
         required: true,
     },
+    role: {
+        type: String,
+        default: "user"
+    }
 });
 //Export the model
 exports.UserModel = mongoose_1.default.model('UserData', userSchema);

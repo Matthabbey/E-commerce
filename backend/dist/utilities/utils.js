@@ -20,12 +20,12 @@ const validatePassword = async (enteredPassword, savedPassword, salt) => {
 };
 exports.validatePassword = validatePassword;
 //generating token or signature for the user.
-const GenerateSignature = async (payload) => {
-    return jsonwebtoken_1.default.sign(payload, APP_SECRET, { expiresIn: "1d" }); //for week use 'w', for month use 'm', for day use 'd', for minutes use 'min', for hour use 'hour'
+const GenerateSignature = async (_id) => {
+    return jsonwebtoken_1.default.sign(_id, process.env.SECRET, { expiresIn: "1d" }); //for week use 'w', for month use 'm', for day use 'd', for minutes use 'min', for hour use 'hour'
 };
 exports.GenerateSignature = GenerateSignature;
 //Verifying the signature of the user before allowing login
 const verifySignature = async (signature) => {
-    return jsonwebtoken_1.default.verify(signature, APP_SECRET);
+    return jsonwebtoken_1.default.verify(signature, process.env.SECRET);
 };
 exports.verifySignature = verifySignature;

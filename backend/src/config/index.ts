@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 
 const connectMongoDB = async () => {
   mongoose.set("strictQuery", false);
@@ -9,3 +8,5 @@ const connectMongoDB = async () => {
 };
 
 export default connectMongoDB;
+
+

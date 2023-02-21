@@ -1,7 +1,11 @@
 import express, { Request, Response } from "express";
 import { UserModel } from "../models/userModel";
 import bcrypt from "bcrypt";
-import { GeneratePassword, GenerateSalt } from "../utilities/utils";
+import {
+  GeneratePassword,
+  GenerateSalt,
+  GenerateSignature,
+} from "../utilities/utils";
 
 export const CreateUser = async (req: Request, res: Response) => {
   try {
@@ -45,12 +49,15 @@ export const Login = async (req: Request, res: Response) => {
 
     const validation = await bcrypt.compare(password, User.password);
     if (validation) {
+      const signature = await GenerateSignature({
+        _id: User?._id,
+        email: User?.email,
+      });
       // const validation = await bcrypt.compare(password, User?.password)
       return res.status(200).json({
         message: "You have successfully logged in",
         email: User?.email,
-        firstName: User?.firstName,
-        lastName: User?.lastName,
+        signature
       });
     }
     return res
@@ -65,6 +72,71 @@ export const Login = async (req: Request, res: Response) => {
   }
 };
 
-function GenerateSignature(arg0: { id: any; email: string }) {
-  throw new Error("Function not implemented.");
-}
+export const getAllUsers = async (req: Request, res: Response) => {
+    try {
+      //Request dot Query(req.query) is use to sort, filter or cause a limit of views to what you want to see in the getAll http method.
+      const users = await UserModel.find();
+      return res.status(200).json({
+        message: "You have successfully retrieved all users in your database",
+        User: users
+      });
+    } catch (err) {
+      res.status(500).json({
+        Error: "Internal server Error",
+        route: "users/get-all-users",
+      });
+    }
+  };
+
+  export const getSingleUser = async (req: Request, res: Response) => {
+    try {
+      //Request dot Query(req.query) is use to sort, filter or cause a limit of views to what you want to see in the getAll http method.
+      const users = await UserModel.findById(req.params.id);
+      return res.status(200).json({
+        message: "You have successfully retrieved all users in your database",
+        User: users
+      });
+    } catch (err) {
+      res.status(500).json({
+        Error: "Internal server Error",
+        route: "users/get-all-users",
+      });
+    }
+  };
+
+
+export const updateUser = async (req: Request, res: Response) => {
+    try {
+      const update = await UserModel.findByIdAndUpdate(req.params.id, req.body);
+     return res.status(200).json({
+        message: "Successfully updated",
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Internal Server Error",
+        route: "todo/update router",
+      });
+    }
+  };
+
+/** ========================DELETE TODO LIST ============================*/
+export const deleteUser = async (req: Request, res: Response) => {
+    try {
+      const deleteMe = await UserModel.findByIdAndDelete(req.params.id);
+      if (!deleteMe) {
+        return res.status(404).json({
+          message: "This item has been deleted",
+        });
+      }
+      return res.status(200).json({
+        message: "You have successfully deleted your TODO item",
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Internal Server Error",
+        route: "todo/delete router",
+      });
+    }
+  };
+
+

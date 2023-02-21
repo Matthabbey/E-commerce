@@ -5,7 +5,8 @@ interface UserInstance{
     email: string,
     phone: string,
     password: string,
-    lastName: string
+    lastName: string,
+    role: string
 }
 // Declare the Schema of the Mongo model
 const userSchema = new mongoose.Schema<UserInstance>({
@@ -31,6 +32,10 @@ const userSchema = new mongoose.Schema<UserInstance>({
         type:String,
         required:true,
     },
+    role:{
+        type: String,
+        default: "user"
+    }
 });
 
 //Export the model
