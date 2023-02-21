@@ -8,4 +8,5 @@ const userController_1 = require("../controller/userController");
 const router = express_1.default.Router();
 /* GET users listing. */
 router.post('/register', userController_1.CreateUser);
+router.post('/login', userController_1.Login);
 exports.default = router;

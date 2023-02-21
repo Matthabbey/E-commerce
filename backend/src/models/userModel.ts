@@ -34,4 +34,4 @@ const userSchema = new mongoose.Schema<UserInstance>({
 });
 
 //Export the model
-export const UserModel = mongoose.model<UserInstance>('User', userSchema);
+export const UserModel = mongoose.model<UserInstance>('UserData', userSchema);
