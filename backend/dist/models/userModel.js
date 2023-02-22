@@ -32,7 +32,15 @@ const userSchema = new mongoose_1.default.Schema({
     role: {
         type: String,
         default: "user"
-    }
+    },
+    cart: {
+        type: [],
+        default: []
+    },
+    address: [{ type: Object, ref: "Address" }],
+    wishList: [{ type: Object, ref: "Product" }]
+}, {
+    timestamps: true
 });
 //Export the model
 exports.UserModel = mongoose_1.default.model('UserData', userSchema);

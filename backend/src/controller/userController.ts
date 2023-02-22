@@ -139,7 +139,7 @@ export const deleteUser = async (req: Request, res: Response) => {
         });
       }
       return res.status(200).json({
-        message: "You have successfully deleted your TODO item",
+        message: "Successfully deleted",
       });
     } catch (error) {
       res.status(500).json({

@@ -7,7 +7,10 @@ interface UserInstance{
     password: string,
     confirm_password: string,
     lastName: string,
-    role: string
+    role: string,
+    cart: Array<string>
+    address: Object
+    wishList: [{type: Object, ref: "Product"}]
 }
 // Declare the Schema of the Mongo model
 const userSchema = new mongoose.Schema<UserInstance>({
@@ -36,7 +39,16 @@ const userSchema = new mongoose.Schema<UserInstance>({
     role:{
         type: String,
         default: "user"
-    }
+    },
+    cart: {
+        type: [],
+        default: []
+    },
+    address: [{type: Object, ref: "Address"}],
+    wishList: [{type: Object, ref: "Product"}]
+},
+{
+timestamps: true
 });
 
 //Export the model
