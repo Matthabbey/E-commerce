@@ -16,5 +16,5 @@ router.put("/update", authRoutes_1.authMiddleware, userController_1.updateUser);
 router.delete("/delete/:id", userController_1.deleteUser);
 router.put("/block-user/:id", authRoutes_1.authMiddleware, authRoutes_1.isAdmin, userController_1.blockedUser);
 router.put("/unblock-user/:id", authRoutes_1.authMiddleware, authRoutes_1.isAdmin, userController_1.unblockedUser);
-router.put("/refresh", userController_1.handleRefreshToken);
+router.get("/refresh", userController_1.handleRefreshToken);
 exports.default = router;

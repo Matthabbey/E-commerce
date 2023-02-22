@@ -100,7 +100,17 @@ export const Login = async (req: Request, res: Response) => {
 };
 
 export const handleRefreshToken = async(req:Request, res: Response)=>{
-    const refreshToken = req.params
+    const cookies = req.cookies
+    if(!cookies?.refreshToke){
+       return res.status(404).json({message: "No Refresh Token in Cookies"})
+    }
+    console.log("refreshToken");
+    const refreshToken = cookies.refreshToken 
+    
+    const user = await UserModel.findOne({refreshToken})
+    return res.json({user})
+    
+    // console.log(user);
 }
 
 export const getAllUsers = async (req: Request, res: Response) => {
