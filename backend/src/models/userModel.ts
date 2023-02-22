@@ -1,6 +1,6 @@
 import  mongoose from 'mongoose'; // Erase if already required
 
-interface UserInstance{
+export interface UserInstance{
     firstName: string,
     email: string,
     phone: string,
