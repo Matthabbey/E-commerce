@@ -1,6 +1,31 @@
 import bcrypt from 'bcrypt'
 import Jwt, { JwtPayload } from 'jsonwebtoken'
+import Joi from 'joi'
 
+
+export const registerSchema = Joi.object().keys({
+    email: Joi.string().required(),
+    phone: Joi.string().required(),
+    password: Joi.string().regex(/[a-z0-9]{3,30}/),
+    firstName: Joi.string().required(),
+    lastName: Joi.string().required(),
+    // confirm_password: Joi.ref('password')
+    confirm_password: Joi.any()
+      .equal(Joi.ref("password"))
+      .required()
+      .label("Confirm password")
+      .messages({ "any.only": "{{#label}} does not match here" }),
+  });
+
+  //To remove the unnecessary character that includes in console.log output of the user error message.
+export const option = {
+    abortEarly: false,
+    errors: {
+      wrap: {
+        label: "",
+      },
+    },
+  };
 // Generating of salt code
 
 export const GenerateSalt = async () => {

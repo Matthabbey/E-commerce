@@ -9,7 +9,13 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const utils_1 = require("../utilities/utils");
 const CreateUser = async (req, res) => {
     try {
-        const { firstName, lastName, phone, password, email } = req.body;
+        const { firstName, lastName, phone, password, email, confirm_password } = req.body;
+        const validateResult = utils_1.registerSchema.validate(req.body, utils_1.option);
+        if (validateResult.error) {
+            return res.status(400).json({
+                Error: validateResult.error.details[0].message,
+            });
+        }
         //Generate Salt
         const salt = await (0, utils_1.GenerateSalt)();
         const userPassword = await (0, utils_1.GeneratePassword)(password, salt);

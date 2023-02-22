@@ -5,6 +5,7 @@ interface UserInstance{
     email: string,
     phone: string,
     password: string,
+    confirm_password: string,
     lastName: string,
     role: string
 }
