@@ -101,10 +101,10 @@ export const Login = async (req: Request, res: Response) => {
 
 export const handleRefreshToken = async(req:Request, res: Response)=>{
     const cookies = req.cookies
-    if(!cookies?.refreshToke){
+
+    if(!cookies){
        return res.status(404).json({message: "No Refresh Token in Cookies"})
     }
-    console.log("refreshToken");
     const refreshToken = cookies.refreshToken 
     
     const user = await UserModel.findOne({refreshToken})
