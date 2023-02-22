@@ -3,10 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifySignature = exports.GenerateSignature = exports.validatePassword = exports.GeneratePassword = exports.GenerateSalt = exports.option = exports.registerSchema = void 0;
+exports.validateMongoId = exports.verifySignature = exports.GenerateSignature = exports.validatePassword = exports.GeneratePassword = exports.GenerateSalt = exports.option = exports.registerSchema = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const joi_1 = __importDefault(require("joi"));
+const mongoose_1 = __importDefault(require("mongoose"));
 exports.registerSchema = joi_1.default.object().keys({
     email: joi_1.default.string().required(),
     phone: joi_1.default.string().required(),
@@ -52,3 +53,10 @@ const verifySignature = async (signature) => {
     return jsonwebtoken_1.default.verify(signature, process.env.SECRET);
 };
 exports.verifySignature = verifySignature;
+const validateMongoId = (id) => {
+    const isValid = mongoose_1.default.Types.ObjectId.isValid(id);
+    if (!isValid) {
+        Error("Invalid ID");
+    }
+};
+exports.validateMongoId = validateMongoId;

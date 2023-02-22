@@ -33,12 +33,19 @@ const userSchema = new mongoose_1.default.Schema({
         type: String,
         default: "user"
     },
+    isBlocked: {
+        type: Boolean,
+        default: false
+    },
     cart: {
         type: [],
         default: []
     },
     address: [{ type: Object, ref: "Address" }],
-    wishList: [{ type: Object, ref: "Product" }]
+    wishList: [{ type: Object, ref: "Product" }],
+    refreshToken: {
+        type: String
+    }
 }, {
     timestamps: true
 });

@@ -11,6 +11,8 @@ export interface UserInstance{
     cart: Array<string>
     address: Object
     wishList: [{type: Object, ref: "Product"}]
+    isBlocked: boolean,
+    refreshToken: string
 }
 // Declare the Schema of the Mongo model
 const userSchema = new mongoose.Schema<UserInstance>({
@@ -40,12 +42,19 @@ const userSchema = new mongoose.Schema<UserInstance>({
         type: String,
         default: "user"
     },
+    isBlocked:{
+        type: Boolean,
+        default: false
+    },
     cart: {
         type: [],
         default: []
     },
     address: [{type: Object, ref: "Address"}],
-    wishList: [{type: Object, ref: "Product"}]
+    wishList: [{type: Object, ref: "Product"}],
+    refreshToken: {
+        type: String
+    }
 },
 {
 timestamps: true

@@ -7,7 +7,9 @@ import {
   GenerateSignature,
   option,
   registerSchema,
+  validateMongoId,
 } from "../utilities/utils";
+import { GenerateRefreshToken } from "../config/refreshToken";
 
 export const CreateUser = async (req: Request, res: Response) => {
   try {
@@ -56,6 +58,21 @@ export const Login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     //Check if the user exist
     const User = await UserModel.findOne({ email });
+    if(User){
+        console.log("refreshToken");
+        const refreshToken = await GenerateRefreshToken(User?._id)
+        
+        const updateUser = await UserModel.findOneAndUpdate(User?._id, {
+        refreshToke: refreshToken
+        },
+        {
+            new: true
+        })
+        res.cookie(refreshToken, refreshToken, {
+            httpOnly: true,
+            maxAge: 24 * 60 * 60 * 1000
+        })
+    }
 
     const validation = await bcrypt.compare(password, User.password);
     if (validation) {
@@ -81,6 +98,10 @@ export const Login = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const handleRefreshToken = async(req:Request, res: Response)=>{
+    const refreshToken = req.params
+}
 
 export const getAllUsers = async (req: Request, res: Response) => {
     try {
@@ -116,8 +137,10 @@ export const getAllUsers = async (req: Request, res: Response) => {
 
 
 export const updateUser = async (req: Request, res: Response) => {
+    const id = req.params.id
+    validateMongoId(id)
     try {
-      const update = await UserModel.findByIdAndUpdate(req.params.id, req.body);
+      const update = await UserModel.findByIdAndUpdate(id, req.body);
      return res.status(200).json({
         message: "Successfully updated",
       });
@@ -131,8 +154,11 @@ export const updateUser = async (req: Request, res: Response) => {
 
 /** ========================DELETE TODO LIST ============================*/
 export const deleteUser = async (req: Request, res: Response) => {
+    const id = req.params.id
+    validateMongoId(id)
     try {
-      const deleteMe = await UserModel.findByIdAndDelete(req.params.id);
+      const deleteMe = await UserModel.findByIdAndDelete(id);
+
       if (!deleteMe) {
         return res.status(404).json({
           message: "This item has been deleted",
@@ -144,9 +170,40 @@ export const deleteUser = async (req: Request, res: Response) => {
     } catch (error) {
       res.status(500).json({
         message: "Internal Server Error",
-        route: "todo/delete router",
+        route: "user/delete router",
       });
     }
   };
 
+  export const blockedUser =async (req: Request, res: Response)=>{
+        const { id } = req.params
+        validateMongoId(id)
+        try {
+            const blocked = await UserModel.findByIdAndUpdate(id, {isBlocked: true}, {new: true})
+            return res.status(200).json({
+                message: `This user is blocked`
+            })
+        } catch (error) {
+            res.status(500).json({
+                message: `Internal error ${error}`,
+                route: "user/delete router",
+              });
+        }
+  }
 
+  export const unblockedUser =async (req: Request, res: Response)=>{
+    const { id } = req.params
+    validateMongoId(id)
+ 
+    try {
+        const unblocked = await UserModel.findByIdAndUpdate(id, {isBlocked: false}, {new: true})
+        return res.status(200).json({
+            message: `This user is unblocked`
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: `Internal error ${error}`,
+            route: "user/delete router",
+          });
+    }
+}

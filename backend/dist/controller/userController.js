@@ -3,10 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.updateUser = exports.getSingleUser = exports.getAllUsers = exports.Login = exports.CreateUser = void 0;
+exports.unblockedUser = exports.blockedUser = exports.deleteUser = exports.updateUser = exports.getSingleUser = exports.getAllUsers = exports.handleRefreshToken = exports.Login = exports.CreateUser = void 0;
 const userModel_1 = require("../models/userModel");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const utils_1 = require("../utilities/utils");
+const refreshToken_1 = require("../config/refreshToken");
 const CreateUser = async (req, res) => {
     try {
         const { firstName, lastName, phone, password, email, confirm_password } = req.body;
@@ -52,6 +53,19 @@ const Login = async (req, res) => {
         const { email, password } = req.body;
         //Check if the user exist
         const User = await userModel_1.UserModel.findOne({ email });
+        if (User) {
+            console.log("refreshToken");
+            const refreshToken = await (0, refreshToken_1.GenerateRefreshToken)(User?._id);
+            const updateUser = await userModel_1.UserModel.findOneAndUpdate(User?._id, {
+                refreshToke: refreshToken
+            }, {
+                new: true
+            });
+            res.cookie(refreshToken, refreshToken, {
+                httpOnly: true,
+                maxAge: 24 * 60 * 60 * 1000
+            });
+        }
         const validation = await bcrypt_1.default.compare(password, User.password);
         if (validation) {
             const signature = await (0, utils_1.GenerateSignature)({
@@ -78,6 +92,10 @@ const Login = async (req, res) => {
     }
 };
 exports.Login = Login;
+const handleRefreshToken = async (req, res) => {
+    const refreshToken = req.params;
+};
+exports.handleRefreshToken = handleRefreshToken;
 const getAllUsers = async (req, res) => {
     try {
         //Request dot Query(req.query) is use to sort, filter or cause a limit of views to what you want to see in the getAll http method.
@@ -113,8 +131,10 @@ const getSingleUser = async (req, res) => {
 };
 exports.getSingleUser = getSingleUser;
 const updateUser = async (req, res) => {
+    const id = req.params.id;
+    (0, utils_1.validateMongoId)(id);
     try {
-        const update = await userModel_1.UserModel.findByIdAndUpdate(req.params.id, req.body);
+        const update = await userModel_1.UserModel.findByIdAndUpdate(id, req.body);
         return res.status(200).json({
             message: "Successfully updated",
         });
@@ -129,8 +149,10 @@ const updateUser = async (req, res) => {
 exports.updateUser = updateUser;
 /** ========================DELETE TODO LIST ============================*/
 const deleteUser = async (req, res) => {
+    const id = req.params.id;
+    (0, utils_1.validateMongoId)(id);
     try {
-        const deleteMe = await userModel_1.UserModel.findByIdAndDelete(req.params.id);
+        const deleteMe = await userModel_1.UserModel.findByIdAndDelete(id);
         if (!deleteMe) {
             return res.status(404).json({
                 message: "This item has been deleted",
@@ -143,8 +165,42 @@ const deleteUser = async (req, res) => {
     catch (error) {
         res.status(500).json({
             message: "Internal Server Error",
-            route: "todo/delete router",
+            route: "user/delete router",
         });
     }
 };
 exports.deleteUser = deleteUser;
+const blockedUser = async (req, res) => {
+    const { id } = req.params;
+    (0, utils_1.validateMongoId)(id);
+    try {
+        const blocked = await userModel_1.UserModel.findByIdAndUpdate(id, { isBlocked: true }, { new: true });
+        return res.status(200).json({
+            message: `This user is blocked`
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            message: `Internal error ${error}`,
+            route: "user/delete router",
+        });
+    }
+};
+exports.blockedUser = blockedUser;
+const unblockedUser = async (req, res) => {
+    const { id } = req.params;
+    (0, utils_1.validateMongoId)(id);
+    try {
+        const unblocked = await userModel_1.UserModel.findByIdAndUpdate(id, { isBlocked: false }, { new: true });
+        return res.status(200).json({
+            message: `This user is unblocked`
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            message: `Internal error ${error}`,
+            route: "user/delete router",
+        });
+    }
+};
+exports.unblockedUser = unblockedUser;

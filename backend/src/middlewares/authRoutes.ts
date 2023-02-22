@@ -40,11 +40,10 @@ export const isAdmin = async (req: JwtPayload, res: Response, next: NextFunction
     const { email } = req.user
     const adminUser = await UserModel.findOne({email})
 
-    if(adminUser?.role !== 'admin'){
-        Error("You are not an admin")
+    if(adminUser?.role !== "admin"){
+        return  res.status(401).json({
+            Error: "You are not an admin"
+        })
     }
-    console.log(next());
-    
     next()
-    
 }

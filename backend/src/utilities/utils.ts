@@ -1,6 +1,8 @@
 import bcrypt from 'bcrypt'
 import Jwt, { JwtPayload } from 'jsonwebtoken'
 import Joi from 'joi'
+import  mongoose  from 'mongoose';
+import { updateUser } from '../controller/userController';
 
 
 export const registerSchema = Joi.object().keys({
@@ -52,3 +54,10 @@ export const GenerateSignature = async (_id: any) => {
 export const verifySignature = async (signature: string) => {
   return Jwt.verify(signature, process.env.SECRET!) as unknown as JwtPayload;
 };
+
+export const validateMongoId = (id: string)=>{
+    const isValid = mongoose.Types.ObjectId.isValid(id)
+    if(!isValid){
+        Error ("Invalid ID")
+    }
+}
