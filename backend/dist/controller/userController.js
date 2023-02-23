@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.unblockedUser = exports.blockedUser = exports.deleteUser = exports.updateUser = exports.getSingleUser = exports.getAllUsers = exports.handleRefreshToken = exports.Login = exports.CreateUser = void 0;
+exports.unblockedUser = exports.blockedUser = exports.deleteUser = exports.updateUser = exports.getSingleUser = exports.getAllUsers = exports.Logout = exports.handleRefreshToken = exports.Login = exports.CreateUser = void 0;
 const userModel_1 = require("../models/userModel");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const utils_1 = require("../utilities/utils");
@@ -94,7 +94,7 @@ const Login = async (req, res) => {
 exports.Login = Login;
 const handleRefreshToken = async (req, res) => {
     const cookies = req.cookies;
-    if (!cookies) {
+    if (!cookies.refreshToken) {
         return res.status(404).json({ message: "No Refresh Token in Cookies" });
     }
     const refreshToken = cookies.refreshToken;
@@ -106,6 +106,30 @@ const handleRefreshToken = async (req, res) => {
     return res.json(accessToken);
 };
 exports.handleRefreshToken = handleRefreshToken;
+const Logout = async (req, res) => {
+    const cookies = req.cookies;
+    if (!cookies.refreshToken) {
+        return res.status(404).json({ message: "No Refresh Token in Cookies" });
+    }
+    const refreshToken = cookies.refreshToken;
+    const user = await userModel_1.UserModel.findOneAndUpdate({ refreshToken });
+    if (!user) {
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: true
+        });
+        return res.sendStatus(204);
+    }
+    await userModel_1.UserModel.findOneAndUpdate(refreshToken, {
+        refreshToken: ""
+    });
+    res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: true
+    });
+    return res.sendStatus(204);
+};
+exports.Logout = Logout;
 const getAllUsers = async (req, res) => {
     try {
         //Request dot Query(req.query) is use to sort, filter or cause a limit of views to what you want to see in the getAll http method.

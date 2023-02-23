@@ -104,7 +104,7 @@ export const Login = async (req: Request, res: Response) => {
 export const handleRefreshToken = async(req:Request, res: Response)=>{
     const cookies = req.cookies
 
-    if(!cookies){
+    if(!cookies.refreshToken){
        return res.status(404).json({message: "No Refresh Token in Cookies"})
     }
     const refreshToken = cookies.refreshToken 
@@ -117,6 +117,32 @@ export const handleRefreshToken = async(req:Request, res: Response)=>{
 
      return res.json(accessToken)
 }
+
+export const Logout =async (req: Request, res: Response)=>{
+    const cookies = req.cookies
+    if(!cookies.refreshToken){
+       return res.status(404).json({message: "No Refresh Token in Cookies"})
+    }
+    const refreshToken = cookies.refreshToken
+    const user = await UserModel.findOneAndUpdate({refreshToken})
+    if(!user){
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: true
+        });
+        return res.sendStatus(204)
+    }
+    await UserModel.findOneAndUpdate(refreshToken, {
+        refreshToken: ""
+    });
+    res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: true
+    });
+    return res.sendStatus(204)
+    
+}
+
 
 export const getAllUsers = async (req: Request, res: Response) => {
     try {

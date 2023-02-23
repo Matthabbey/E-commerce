@@ -9,6 +9,7 @@ import {
   updateUser,
   unblockedUser,
   handleRefreshToken,
+  Logout,
 } from "../controller/userController";
 import { authMiddleware, isAdmin } from "../middlewares/authRoutes";
 const router = express.Router();
@@ -23,5 +24,6 @@ router.delete("/delete/:id", deleteUser);
 router.put("/block-user/:id", authMiddleware, isAdmin, blockedUser);
 router.put("/unblock-user/:id", authMiddleware, isAdmin, unblockedUser);
 router.get("/refresh", handleRefreshToken);
+router.get('/logout', Logout)
 
 export default router;
