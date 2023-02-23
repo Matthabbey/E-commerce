@@ -56,13 +56,13 @@ const Login = async (req, res) => {
         if (User) {
             const refreshToken = await (0, refreshToken_1.GenerateRefreshToken)(User?._id);
             const updateUser = await userModel_1.UserModel.findOneAndUpdate(User?._id, {
-                refreshToen: refreshToken
+                refreshToen: refreshToken,
             }, {
-                new: true
+                new: true,
             });
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
-                maxAge: 24 * 60 * 60 * 1000
+                maxAge: 24 * 60 * 60 * 1000,
             });
             console.log(refreshToken);
         }
@@ -76,7 +76,7 @@ const Login = async (req, res) => {
             return res.status(200).json({
                 message: "You have successfully logged in",
                 email: User?.email,
-                signature
+                signature,
             });
         }
         return res
@@ -100,7 +100,9 @@ const handleRefreshToken = async (req, res) => {
     const refreshToken = cookies.refreshToken;
     const user = await userModel_1.UserModel.findOne({ refreshToken });
     if (!user) {
-        return res.status(404).json({ message: "No Refresh Token in db or not matched" });
+        return res
+            .status(404)
+            .json({ message: "No Refresh Token in db or not matched" });
     }
     const accessToken = await (0, refreshToken_1.GenerateRefreshToken)(refreshToken);
     return res.json(accessToken);
@@ -116,16 +118,16 @@ const Logout = async (req, res) => {
     if (!user) {
         res.clearCookie("refreshToken", {
             httpOnly: true,
-            secure: true
+            secure: true,
         });
         return res.sendStatus(204);
     }
     await userModel_1.UserModel.findOneAndUpdate(refreshToken, {
-        refreshToken: ""
+        refreshToken: "",
     });
     res.clearCookie("refreshToken", {
         httpOnly: true,
-        secure: true
+        secure: true,
     });
     return res.sendStatus(204);
 };
@@ -136,7 +138,7 @@ const getAllUsers = async (req, res) => {
         const users = await userModel_1.UserModel.find();
         return res.status(200).json({
             message: "You have successfully retrieved all users in your database",
-            User: users
+            User: users,
         });
     }
     catch (err) {
@@ -153,7 +155,7 @@ const getSingleUser = async (req, res) => {
         const users = await userModel_1.UserModel.findById(req.params.id);
         return res.status(200).json({
             message: "You have successfully retrieved all users in your database",
-            User: users
+            User: users,
         });
     }
     catch (err) {
@@ -210,7 +212,7 @@ const blockedUser = async (req, res) => {
     try {
         const blocked = await userModel_1.UserModel.findByIdAndUpdate(id, { isBlocked: true }, { new: true });
         return res.status(200).json({
-            message: `This user is blocked`
+            message: `This user is blocked`,
         });
     }
     catch (error) {
@@ -227,7 +229,7 @@ const unblockedUser = async (req, res) => {
     try {
         const unblocked = await userModel_1.UserModel.findByIdAndUpdate(id, { isBlocked: false }, { new: true });
         return res.status(200).json({
-            message: `This user is unblocked`
+            message: `This user is unblocked`,
         });
     }
     catch (error) {

@@ -1,71 +1,78 @@
-import mongoose from 'mongoose' // Erase if already required
-export interface ProductInstance{
-    title: string,
-    slug: string,
-    sold: number,
-    description: "",
-    price: number,
-    category: {},
-    brand: string,
-    quantity: number,
-    images: [],
-    color: string,
-    ratings: []
+import mongoose from "mongoose"; // Erase if already required
+export interface ProductInstance {
+  title: string;
+  slug: string;
+  sold: number;
+  description: "";
+  price: number;
+  category: {};
+  brand: string;
+  quantity: number;
+  images: [];
+  color: string;
+  ratings: [];
 }
 // Declare the Schema of the Mongo model
-const productSchema = new mongoose.Schema<ProductInstance>({
-    title:{
-        type:String,
-        required:true,
-        trim: true
+const productSchema = new mongoose.Schema<ProductInstance>(
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
     },
-    slug:{
-        type:String,
-        required:true,
-        unique:true,
-        lowercase: true
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
     },
     sold: {
-        type: Number,
-        default: 0
+      type: Number,
+      default: 0,
+      select: false
     },
-    description:{
-        type:String,
-        required:true,
+    description: {
+      type: String,
+      required: true,
     },
-    price:{
-        type:Number,
-        required:true,
+    price: {
+      type: Number,
+      required: true,
     },
     category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Category"
+      type: String,
+      required: true,
     },
     brand: {
-        type: String,
-        enum: ["Apple", "Samsung", "Lenovo"]
+      type: String,
+      required: true,
     },
     quantity: {
-        type: Number,
-        required: true
+      type: Number,
+      required: true,
     },
     images: {
-        type: []
+      type: [],
     },
-    color:{
-        type: String,
-        enum: ['Black', 'Brown', 'Red']
+    color: {
+      type: String,
+      required: true,
     },
-    ratings: [{
+    ratings: [
+      {
         star: Number,
         postedby: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User"
-        }
-    }]
-},
-{timestamps: true}
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+      },
+    ],
+  },
+  { timestamps: true }
 );
 
 //Export the model
-export const ProductModel = mongoose.model<ProductInstance>('Product', productSchema);
+export const ProductModel = mongoose.model<ProductInstance>(
+  "Product",
+  productSchema
+);

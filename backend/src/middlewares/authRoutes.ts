@@ -31,7 +31,8 @@ export const authMiddleware = async (req: JwtPayload, res: Response, next: NextF
     next()
    } catch (error) {
     return  res.status(401).json({
-        Error: "Unaothorized user"
+        Error: `Internal server ${error}`,
+        route: "/product/authMiddleware"
     })
    }
 }

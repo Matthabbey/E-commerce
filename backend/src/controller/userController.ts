@@ -9,12 +9,12 @@ import {
   registerSchema,
   validateMongoId,
 } from "../utilities/utils";
-import { GenerateRefreshToken, verifySignature } from "../config/refreshToken";
-import Jwt from 'jsonwebtoken'
+import { GenerateRefreshToken } from "../config/refreshToken";
 
 export const CreateUser = async (req: Request, res: Response) => {
   try {
-    const { firstName, lastName, phone, password, email, confirm_password } = req.body;
+    const { firstName, lastName, phone, password, email, confirm_password } =
+      req.body;
 
     const validateResult = registerSchema.validate(req.body, option);
 
@@ -59,21 +59,24 @@ export const Login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     //Check if the user exist
     const User = await UserModel.findOne({ email });
-    if(User){
-        const refreshToken = await GenerateRefreshToken(User?._id)
-        
-        const updateUser = await UserModel.findOneAndUpdate(User?._id, {
-            refreshToen: refreshToken
+    if (User) {
+      const refreshToken = await GenerateRefreshToken(User?._id);
+
+      const updateUser = await UserModel.findOneAndUpdate(
+        User?._id,
+        {
+          refreshToen: refreshToken,
         },
         {
-            new: true
-        })
-        
-        res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000
-        })
-        console.log(refreshToken);
+          new: true,
+        }
+      );
+
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000,
+      });
+      console.log(refreshToken);
     }
 
     const validation = await bcrypt.compare(password, User.password);
@@ -86,7 +89,7 @@ export const Login = async (req: Request, res: Response) => {
       return res.status(200).json({
         message: "You have successfully logged in",
         email: User?.email,
-        signature
+        signature,
       });
     }
     return res
@@ -101,152 +104,157 @@ export const Login = async (req: Request, res: Response) => {
   }
 };
 
-export const handleRefreshToken = async(req:Request, res: Response)=>{
-    const cookies = req.cookies
+export const handleRefreshToken = async (req: Request, res: Response) => {
+  const cookies = req.cookies;
 
-    if(!cookies.refreshToken){
-       return res.status(404).json({message: "No Refresh Token in Cookies"})
-    }
-    const refreshToken = cookies.refreshToken 
-    
-    const user = await UserModel.findOne({refreshToken})
-    if(!user) {
-        return res.status(404).json({message: "No Refresh Token in db or not matched"})
-    }
-     const accessToken = await GenerateRefreshToken(refreshToken)
+  if (!cookies.refreshToken) {
+    return res.status(404).json({ message: "No Refresh Token in Cookies" });
+  }
+  const refreshToken = cookies.refreshToken;
 
-     return res.json(accessToken)
-}
+  const user = await UserModel.findOne({ refreshToken });
+  if (!user) {
+    return res
+      .status(404)
+      .json({ message: "No Refresh Token in db or not matched" });
+  }
+  const accessToken = await GenerateRefreshToken(refreshToken);
 
-export const Logout =async (req: Request, res: Response)=>{
-    const cookies = req.cookies
-    if(!cookies.refreshToken){
-       return res.status(404).json({message: "No Refresh Token in Cookies"})
-    }
-    const refreshToken = cookies.refreshToken
-    const user = await UserModel.findOneAndUpdate({refreshToken})
-    if(!user){
-        res.clearCookie("refreshToken", {
-            httpOnly: true,
-            secure: true
-        });
-        return res.sendStatus(204)
-    }
-    await UserModel.findOneAndUpdate(refreshToken, {
-        refreshToken: ""
-    });
+  return res.json(accessToken);
+};
+
+export const Logout = async (req: Request, res: Response) => {
+  const cookies = req.cookies;
+  if (!cookies.refreshToken) {
+    return res.status(404).json({ message: "No Refresh Token in Cookies" });
+  }
+  const refreshToken = cookies.refreshToken;
+  const user = await UserModel.findOneAndUpdate({ refreshToken });
+  if (!user) {
     res.clearCookie("refreshToken", {
-        httpOnly: true,
-        secure: true
+      httpOnly: true,
+      secure: true,
     });
-    return res.sendStatus(204)
-    
-}
-
+    return res.sendStatus(204);
+  }
+  await UserModel.findOneAndUpdate(refreshToken, {
+    refreshToken: "",
+  });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: true,
+  });
+  return res.sendStatus(204);
+};
 
 export const getAllUsers = async (req: Request, res: Response) => {
-    try {
-      //Request dot Query(req.query) is use to sort, filter or cause a limit of views to what you want to see in the getAll http method.
-      const users = await UserModel.find();
-      return res.status(200).json({
-        message: "You have successfully retrieved all users in your database",
-        User: users
-      });
-    } catch (err) {
-      res.status(500).json({
-        Error: "Internal server Error",
-        route: "users/get-all-users",
-      });
-    }
-  };
+  try {
+    //Request dot Query(req.query) is use to sort, filter or cause a limit of views to what you want to see in the getAll http method.
+    const users = await UserModel.find();
+    return res.status(200).json({
+      message: "You have successfully retrieved all users in your database",
+      User: users,
+    });
+  } catch (err) {
+    res.status(500).json({
+      Error: "Internal server Error",
+      route: "users/get-all-users",
+    });
+  }
+};
 
-  export const getSingleUser = async (req: Request, res: Response) => {
-    try {
-      //Request dot Query(req.query) is use to sort, filter or cause a limit of views to what you want to see in the getAll http method.
-      const users = await UserModel.findById(req.params.id);
-      return res.status(200).json({
-        message: "You have successfully retrieved all users in your database",
-        User: users
-      });
-    } catch (err) {
-      res.status(500).json({
-        Error: "Internal server Error",
-        route: "users/get-all-users",
-      });
-    }
-  };
-
+export const getSingleUser = async (req: Request, res: Response) => {
+  try {
+    //Request dot Query(req.query) is use to sort, filter or cause a limit of views to what you want to see in the getAll http method.
+    const users = await UserModel.findById(req.params.id);
+    return res.status(200).json({
+      message: "You have successfully retrieved all users in your database",
+      User: users,
+    });
+  } catch (err) {
+    res.status(500).json({
+      Error: "Internal server Error",
+      route: "users/get-all-users",
+    });
+  }
+};
 
 export const updateUser = async (req: Request, res: Response) => {
-    const id = req.params.id
-    validateMongoId(id)
-    try {
-      const update = await UserModel.findByIdAndUpdate(id, req.body);
-     return res.status(200).json({
-        message: "Successfully updated",
-      });
-    } catch (error) {
-      res.status(500).json({
-        message: "Internal Server Error",
-        route: "todo/update router",
-      });
-    }
-  };
+  const id = req.params.id;
+  validateMongoId(id);
+  try {
+    const update = await UserModel.findByIdAndUpdate(id, req.body);
+    return res.status(200).json({
+      message: "Successfully updated",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal Server Error",
+      route: "todo/update router",
+    });
+  }
+};
 
 /** ========================DELETE TODO LIST ============================*/
 export const deleteUser = async (req: Request, res: Response) => {
-    const id = req.params.id
-    validateMongoId(id)
-    try {
-      const deleteMe = await UserModel.findByIdAndDelete(id);
+  const id = req.params.id;
+  validateMongoId(id);
+  try {
+    const deleteMe = await UserModel.findByIdAndDelete(id);
 
-      if (!deleteMe) {
-        return res.status(404).json({
-          message: "This item has been deleted",
-        });
-      }
-      return res.status(200).json({
-        message: "Successfully deleted",
-      });
-    } catch (error) {
-      res.status(500).json({
-        message: "Internal Server Error",
-        route: "user/delete router",
+    if (!deleteMe) {
+      return res.status(404).json({
+        message: "This item has been deleted",
       });
     }
-  };
-
-  export const blockedUser =async (req: Request, res: Response)=>{
-        const { id } = req.params
-        validateMongoId(id)
-        try {
-            const blocked = await UserModel.findByIdAndUpdate(id, {isBlocked: true}, {new: true})
-            return res.status(200).json({
-                message: `This user is blocked`
-            })
-        } catch (error) {
-            res.status(500).json({
-                message: `Internal error ${error}`,
-                route: "user/delete router",
-              });
-        }
+    return res.status(200).json({
+      message: "Successfully deleted",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal Server Error",
+      route: "user/delete router",
+    });
   }
+};
 
-  export const unblockedUser =async (req: Request, res: Response)=>{
-    const { id } = req.params
-    validateMongoId(id)
- 
-    try {
-        const unblocked = await UserModel.findByIdAndUpdate(id, {isBlocked: false}, {new: true})
-        return res.status(200).json({
-            message: `This user is unblocked`
-        })
-    } catch (error) {
-        res.status(500).json({
-            message: `Internal error ${error}`,
-            route: "user/delete router",
-          });
-    }
-}
+export const blockedUser = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  validateMongoId(id);
+  try {
+    const blocked = await UserModel.findByIdAndUpdate(
+      id,
+      { isBlocked: true },
+      { new: true }
+    );
+    return res.status(200).json({
+      message: `This user is blocked`,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: `Internal error ${error}`,
+      route: "user/delete router",
+    });
+  }
+};
 
+export const unblockedUser = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  validateMongoId(id);
 
+  try {
+    const unblocked = await UserModel.findByIdAndUpdate(
+      id,
+      { isBlocked: false },
+      { new: true }
+    );
+    return res.status(200).json({
+      message: `This user is unblocked`,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: `Internal error ${error}`,
+      route: "user/delete router",
+    });
+  }
+};
