@@ -1,7 +1,19 @@
 import mongoose from 'mongoose' // Erase if already required
-
+export interface ProductInstance{
+    title: string,
+    slug: string,
+    sold: number,
+    description: "",
+    price: number,
+    category: {},
+    brand: string,
+    quantity: number,
+    images: [],
+    color: string,
+    ratings: []
+}
 // Declare the Schema of the Mongo model
-const productSchema = new mongoose.Schema({
+const productSchema = new mongoose.Schema<ProductInstance>({
     title:{
         type:String,
         required:true,
@@ -56,4 +68,4 @@ const productSchema = new mongoose.Schema({
 );
 
 //Export the model
-export const ProductModel = mongoose.model('Product', productSchema);
+export const ProductModel = mongoose.model<ProductInstance>('Product', productSchema);

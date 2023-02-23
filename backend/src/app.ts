@@ -5,8 +5,8 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
 
-import indexRouter from "./routes/index";
-import usersRouter from "./routes/users";
+import productRouter from "./routes/productRoute";
+import usersRouter from "./routes/usersRoute";
 import connectMongoDB from "./config/index";
 dotenv.config();
 connectMongoDB();
@@ -23,8 +23,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/api", indexRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/products", productRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
