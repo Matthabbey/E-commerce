@@ -99,8 +99,11 @@ const handleRefreshToken = async (req, res) => {
     }
     const refreshToken = cookies.refreshToken;
     const user = await userModel_1.UserModel.findOne({ refreshToken });
-    return res.json({ user });
-    // console.log(user);
+    if (!user) {
+        return res.status(404).json({ message: "No Refresh Token in db or not matched" });
+    }
+    const accessToken = await (0, refreshToken_1.GenerateRefreshToken)(refreshToken);
+    return res.json(accessToken);
 };
 exports.handleRefreshToken = handleRefreshToken;
 const getAllUsers = async (req, res) => {

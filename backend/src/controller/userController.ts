@@ -9,7 +9,8 @@ import {
   registerSchema,
   validateMongoId,
 } from "../utilities/utils";
-import { GenerateRefreshToken } from "../config/refreshToken";
+import { GenerateRefreshToken, verifySignature } from "../config/refreshToken";
+import Jwt from 'jsonwebtoken'
 
 export const CreateUser = async (req: Request, res: Response) => {
   try {
@@ -108,9 +109,12 @@ export const handleRefreshToken = async(req:Request, res: Response)=>{
     const refreshToken = cookies.refreshToken 
     
     const user = await UserModel.findOne({refreshToken})
-    return res.json({user})
-    
-    // console.log(user);
+    if(!user) {
+        return res.status(404).json({message: "No Refresh Token in db or not matched"})
+    }
+     const accessToken = await GenerateRefreshToken(refreshToken)
+
+     return res.json(accessToken)
 }
 
 export const getAllUsers = async (req: Request, res: Response) => {
