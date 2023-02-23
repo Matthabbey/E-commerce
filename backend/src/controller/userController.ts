@@ -60,19 +60,20 @@ export const Login = async (req: Request, res: Response) => {
     //Check if the user exist
     const User = await UserModel.findOne({ email });
     if(User){
-        console.log("refreshToken");
         const refreshToken = await GenerateRefreshToken(User?._id)
         
         const updateUser = await UserModel.findOneAndUpdate(User?._id, {
-        refreshToke: refreshToken
+            refreshToen: refreshToken
         },
         {
             new: true
         })
-        res.cookie(refreshToken, refreshToken, {
+        
+        res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             maxAge: 24 * 60 * 60 * 1000
         })
+        console.log(refreshToken);
     }
 
     const validation = await bcrypt.compare(password, User.password);
@@ -221,3 +222,5 @@ export const deleteUser = async (req: Request, res: Response) => {
           });
     }
 }
+
+

@@ -54,17 +54,17 @@ const Login = async (req, res) => {
         //Check if the user exist
         const User = await userModel_1.UserModel.findOne({ email });
         if (User) {
-            console.log("refreshToken");
             const refreshToken = await (0, refreshToken_1.GenerateRefreshToken)(User?._id);
             const updateUser = await userModel_1.UserModel.findOneAndUpdate(User?._id, {
-                refreshToke: refreshToken
+                refreshToen: refreshToken
             }, {
                 new: true
             });
-            res.cookie(refreshToken, refreshToken, {
+            res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
                 maxAge: 24 * 60 * 60 * 1000
             });
+            console.log(refreshToken);
         }
         const validation = await bcrypt_1.default.compare(password, User.password);
         if (validation) {
