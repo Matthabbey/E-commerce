@@ -39,9 +39,11 @@ export const GeneratePassword = async (password: string, salt: string) => {
     return await bcrypt.hash(password, salt);
   };
 
-export const createPasswordResetToken = async ()=>{
+export const createPasswordResetToken = async (token:any)=>{
   const resetToken = crypto.randomBytes(32).toString("hex")
-  let passwordResetToken = crypto
+  userSchema.methods.passwordResetToken = crypto.createHash("sha256").update(resetToken).digest("hex")
+  let passwordResetExpires = Date.now() + 30 * 60 * 1000
+  return createPasswordResetToken
 }
   export const validatePassword = async (
     enteredPassword: string,

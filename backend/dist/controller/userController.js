@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.unblockedUser = exports.blockedUser = exports.deleteUser = exports.updateUser = exports.getSingleUser = exports.getAllUsers = exports.Logout = exports.handleRefreshToken = exports.Login = exports.CreateUser = void 0;
+exports.unblockedUser = exports.UpdatePassword = exports.blockedUser = exports.deleteUser = exports.updateUser = exports.getSingleUser = exports.getAllUsers = exports.Logout = exports.handleRefreshToken = exports.Login = exports.CreateUser = void 0;
 const userModel_1 = require("../models/userModel");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const utils_1 = require("../utilities/utils");
@@ -223,6 +223,29 @@ const blockedUser = async (req, res) => {
     }
 };
 exports.blockedUser = blockedUser;
+const UpdatePassword = async (req, res) => {
+    const { _id } = req.user;
+    // console.log(_id);
+    try {
+        const { password } = req.body;
+        (0, utils_1.validateMongoId)(_id);
+        const newPassword = (await (0, utils_1.createPasswordResetToken)(password));
+        const user = await userModel_1.UserModel.findById(_id);
+        if (password) {
+            user.password = newPassword;
+            const updatedtPassword = await user?.save();
+            return res.status(200).json({ message: "Password Successfully Updated", updatedtPassword });
+        }
+        return res.status(200).json(user);
+    }
+    catch (error) {
+        res.status(500).json({
+            message: `Internal error ${error}`,
+            route: "user/update-password router",
+        });
+    }
+};
+exports.UpdatePassword = UpdatePassword;
 const unblockedUser = async (req, res) => {
     const { id } = req.params;
     (0, utils_1.validateMongoId)(id);

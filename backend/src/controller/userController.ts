@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { UserModel } from "../models/userModel";
 import bcrypt from "bcrypt";
 import {
+  createPasswordResetToken,
   GeneratePassword,
   GenerateSalt,
   GenerateSignature,
@@ -79,7 +80,7 @@ export const Login = async (req: Request, res: Response) => {
       console.log(refreshToken);
     }
 
-    const validation = await bcrypt.compare(password, User.password);
+    const validation = await bcrypt.compare(password, User!.password);
     if (validation) {
       const signature = await GenerateSignature({
         _id: User?._id,
@@ -237,6 +238,29 @@ export const blockedUser = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const UpdatePassword =async (req: Request, res: Response)=>{
+  const { _id } = req.user
+  // console.log(_id);
+  try {
+    const {password}  = req.body
+    validateMongoId(_id)
+    const newPassword : any = ( await createPasswordResetToken(password))
+    const user = await UserModel.findById(_id)
+    if(password){
+      user!.password = newPassword
+      const updatedtPassword = await user?.save()
+      return res.status(200).json({message: "Password Successfully Updated", updatedtPassword})
+    }
+    return res.status(200).json(user)
+    
+  } catch (error) {
+    res.status(500).json({
+      message: `Internal error ${error}`,
+      route: "user/update-password router",
+    });
+  }
+}
 
 export const unblockedUser = async (req: Request, res: Response) => {
   const { id } = req.params;
