@@ -3,11 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateMongoId = exports.verifySignature = exports.GenerateSignature = exports.validatePassword = exports.GeneratePassword = exports.GenerateSalt = exports.option = exports.registerSchema = void 0;
+exports.validateMongoId = exports.verifySignature = exports.GenerateSignature = exports.validatePassword = exports.createPasswordResetToken = exports.GeneratePassword = exports.GenerateSalt = exports.option = exports.registerSchema = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const joi_1 = __importDefault(require("joi"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const crypto_1 = __importDefault(require("crypto"));
 exports.registerSchema = joi_1.default.object().keys({
     email: joi_1.default.string().required(),
     phone: joi_1.default.string().required(),
@@ -39,6 +40,11 @@ const GeneratePassword = async (password, salt) => {
     return await bcrypt_1.default.hash(password, salt);
 };
 exports.GeneratePassword = GeneratePassword;
+const createPasswordResetToken = async () => {
+    const resetToken = crypto_1.default.randomBytes(32).toString("hex");
+    let passwordResetToken = crypto_1.default;
+};
+exports.createPasswordResetToken = createPasswordResetToken;
 const validatePassword = async (enteredPassword, savedPassword, salt) => {
     return (await (0, exports.GeneratePassword)(enteredPassword, salt)) === savedPassword;
 };

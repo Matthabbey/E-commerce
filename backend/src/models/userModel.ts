@@ -12,10 +12,13 @@ export interface UserInstance{
     address: Object
     wishList: [{type: Object, ref: "Product"}]
     isBlocked: boolean,
-    refreshToken: string
+    refreshToken: string,
+    passwordChangedAt: Date,
+    passwordResetToken: string,
+    passwordResetExpires: Date
 }
 // Declare the Schema of the Mongo model
-const userSchema = new mongoose.Schema<UserInstance>({
+export const userSchema = new mongoose.Schema<UserInstance>({
     firstName:{
         type:String,
         required:true,
@@ -54,7 +57,10 @@ const userSchema = new mongoose.Schema<UserInstance>({
     wishList: [{type: Object, ref: "Product"}],
     refreshToken: {
         type: String
-    }
+    },
+    passwordChangedAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date
 },
 {
 timestamps: true

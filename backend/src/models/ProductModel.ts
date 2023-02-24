@@ -13,7 +13,7 @@ export interface ProductInstance {
   ratings: [];
 }
 // Declare the Schema of the Mongo model
-const productSchema = new mongoose.Schema<ProductInstance>(
+ export const productSchema = new mongoose.Schema<ProductInstance>(
   {
     title: {
       type: String,
@@ -67,6 +67,7 @@ const productSchema = new mongoose.Schema<ProductInstance>(
         },
       },
     ],
+    
   },
   { timestamps: true }
 );

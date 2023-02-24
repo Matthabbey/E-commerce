@@ -2,7 +2,8 @@ import bcrypt from 'bcrypt'
 import Jwt, { JwtPayload } from 'jsonwebtoken'
 import Joi from 'joi'
 import  mongoose  from 'mongoose';
-import { updateUser } from '../controller/userController';
+import { userSchema } from '../models/userModel';
+import crypto from 'crypto'
 
 
 export const registerSchema = Joi.object().keys({
@@ -31,13 +32,17 @@ export const option = {
 // Generating of salt code
 
 export const GenerateSalt = async () => {
-    return await bcrypt.genSalt();
-  };
-  
-  export const GeneratePassword = async (password: string, salt: string) => {
+  return await bcrypt.genSalt();
+};
+
+export const GeneratePassword = async (password: string, salt: string) => {
     return await bcrypt.hash(password, salt);
   };
 
+export const createPasswordResetToken = async ()=>{
+  const resetToken = crypto.randomBytes(32).toString("hex")
+  let passwordResetToken = crypto
+}
   export const validatePassword = async (
     enteredPassword: string,
     savedPassword: string,
