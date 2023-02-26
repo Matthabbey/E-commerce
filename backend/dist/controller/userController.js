@@ -223,29 +223,67 @@ const blockedUser = async (req, res) => {
     }
 };
 exports.blockedUser = blockedUser;
-const UpdatePassword = async (req, res) => {
-    const { _id } = req.user;
-    // console.log(_id);
+/*================= forgot Password ================*/
+const UpdatePassword = async (req, res, next) => {
     try {
-        const { password } = req.body;
-        (0, utils_1.validateMongoId)(_id);
-        const newPassword = (await (0, utils_1.createPasswordResetToken)(password));
-        const user = await userModel_1.UserModel.findById(_id);
-        if (password) {
-            user.password = newPassword;
-            const updatedtPassword = await user?.save();
-            return res.status(200).json({ message: "Password Successfully Updated", updatedtPassword });
+        const { email } = req.body;
+        const user = (await userModel_1.UserModel.findOne({
+            where: { email: email },
+        }));
+        if (!user) {
+            // __TEST MESSAGE__ wrong message this should be an error
+            return res.status(200).json({
+                code: 200,
+                message: "Check Your Email to Continue !!",
+            });
         }
-        return res.status(200).json(user);
+        else {
+            const otp = await (0, utils_1.GenerateSalt)();
+            let token = await (0, utils_1.GenerateSignature)({
+                email,
+                otp,
+            });
+            await userModel_1.UserModel.findOneAndUpdate({
+                otp: otp,
+            }, {
+                where: { _id: user._id },
+            });
+            const template = await passworTemplate(user.userName, token);
+            await sendEmail(user.email, "PASSWORD RESETE", template);
+            // __TEST MESSAGE__ dont send token as response or user will be able to reset pwd without checking email
+            res.status(200).json({
+                code: 200,
+                signature: token,
+                message: "Check Your Email to Continue !!",
+            });
+        }
     }
     catch (error) {
-        res.status(500).json({
-            message: `Internal error ${error}`,
-            route: "user/update-password router",
-        });
+        next(error);
     }
 };
 exports.UpdatePassword = UpdatePassword;
+// export const UpdatePassword =async (req: Request, res: Response)=>{
+//   const { _id } = req.user
+//   // console.log(_id);
+//   try {
+//     const {password, confirm_password}  = req.body
+//     validateMongoId(_id)
+//     const newPassword : any = ( await createPasswordResetToken(password))
+//     const user = await UserModel.findById(_id)
+//     if(password){
+//       user!.passwordResetToken = newPassword
+//       const updatedtPassword = await user?.save()
+//       return res.status(200).json({message: "Password Successfully Updated", updatedtPassword})
+//     }
+//     return res.status(200).json(user)
+//   } catch (error) {
+//     res.status(500).json({
+//       message: `Internal error ${error}`,
+//       route: "user/update-password router",
+//     });
+//   }
+// }
 const unblockedUser = async (req, res) => {
     const { id } = req.params;
     (0, utils_1.validateMongoId)(id);

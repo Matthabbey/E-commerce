@@ -8,7 +8,6 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const joi_1 = __importDefault(require("joi"));
 const mongoose_1 = __importDefault(require("mongoose"));
-const userModel_1 = require("../models/userModel");
 const crypto_1 = __importDefault(require("crypto"));
 exports.registerSchema = joi_1.default.object().keys({
     email: joi_1.default.string().required(),
@@ -43,9 +42,9 @@ const GeneratePassword = async (password, salt) => {
 exports.GeneratePassword = GeneratePassword;
 const createPasswordResetToken = async (token) => {
     const resetToken = crypto_1.default.randomBytes(32).toString("hex");
-    userModel_1.userSchema.methods.passwordResetToken = crypto_1.default.createHash("sha256").update(resetToken).digest("hex");
+    let passwordResetToken = crypto_1.default.createHash("sha256").update(resetToken).digest("hex");
     let passwordResetExpires = Date.now() + 30 * 60 * 1000;
-    return exports.createPasswordResetToken;
+    return passwordResetToken;
 };
 exports.createPasswordResetToken = createPasswordResetToken;
 const validatePassword = async (enteredPassword, savedPassword, salt) => {

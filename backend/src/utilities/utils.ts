@@ -41,9 +41,9 @@ export const GeneratePassword = async (password: string, salt: string) => {
 
 export const createPasswordResetToken = async (token:any)=>{
   const resetToken = crypto.randomBytes(32).toString("hex")
-  userSchema.methods.passwordResetToken = crypto.createHash("sha256").update(resetToken).digest("hex")
+  let passwordResetToken = crypto.createHash("sha256").update(resetToken).digest("hex")
   let passwordResetExpires = Date.now() + 30 * 60 * 1000
-  return createPasswordResetToken
+  return passwordResetToken
 }
   export const validatePassword = async (
     enteredPassword: string,
