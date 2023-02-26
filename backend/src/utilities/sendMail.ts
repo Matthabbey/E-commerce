@@ -1,31 +1,36 @@
+import { FromAdminMail, GMAIL_PASSWORD, GMAIL_USER, userSubject } from "../config/index";
 import nodemailer from "nodemailer";
-import config from "../../config";
+
+
 
 const transport = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: config.GMAIL_USER,
-    pass: config.GMAIL_PASS,
+    user: GMAIL_USER, // generated ethereal user
+    pass: GMAIL_PASSWORD, // generated ethereal password
   },
   tls: {
     rejectUnauthorized: false,
   },
 });
+// console.log(GMAIL_USER, GMAIL_PASSWORD, FromAdminMail );
 
-export const sendEmail = async (to: string, subject: string, html: string) => {
+
+export const mailSent = async (
+  from: string, //'"Fred Foo 👻" <foo@example.com>', // sender address
+  to: string, //"bar@example.com, baz@example.com", // list of receivers
+  subject: string, //"Hello ✔", // Subject line
+    html: string//"<b>Hello world?</b>", // html body
+) => {
   try {
-    if(to.length<5 || subject.length<1 || html.length<1){
-      const errorMessage = to.length<5 ? "recipient(to) not specified" : subject.length<1  ? "subject not specified" : "html template not specified"
-      throw new Error(errorMessage)
-    }
     const response = await transport.sendMail({
-      from: config.FROM_ADMIN_EMAIL,
+      from: FromAdminMail,
       to,
-      subject,
-      html,
+      subject: userSubject,
+      html
     });
     return response;
   } catch (error) {
-    throw(error);
+    console.log(error);
   }
 };
