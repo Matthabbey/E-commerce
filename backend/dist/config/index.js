@@ -18,4 +18,3 @@ exports.GMAIL_USER = process.env.GMAIL_USER;
 exports.GMAIL_PASSWORD = process.env.GMAIL_PASSWORD;
 exports.FromAdminMail = process.env.fromAdminMail;
 exports.userSubject = process.env.userSubject;
-console.log(exports.GMAIL_USER);

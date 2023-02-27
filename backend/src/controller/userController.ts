@@ -11,6 +11,8 @@ import {
   validateMongoId,
 } from "../utilities/utils";
 import { GenerateRefreshToken } from "../config/refreshToken";
+import { mailSent } from "../utilities/sendMail";
+import { FromAdminMail, userSubject } from "../config";
 
 export const CreateUser = async (req: Request, res: Response) => {
   try {
@@ -241,72 +243,73 @@ export const blockedUser = async (req: Request, res: Response) => {
 
 /*================= forgot Password ================*/
 
-export const UpdatePassword = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { email } = req.body;
-    const user = (await UserModel.findOne({
-      where: { email: email },
-    })) as unknown as UserInstance;
-    if (!user) {
-      // __TEST MESSAGE__ wrong message this should be an error
-      return res.status(200).json({
-        code: 200,
-        message: "Check Your Email to Continue !!",
-      });
-    } else {
-      const otp = await GenerateSalt();
-      let token = await GenerateSignature({
-        email,
-        otp,
-      });
-      await UserModel.findOneAndUpdate(
-        {
-          otp: otp,
-        },
-        {
-          where: { _id: user._id },
-        }
-      );
-      const template = await passworTemplate(user.userName, token);
-      await sendEmail(user.email, "PASSWORD RESETE", template);
-      // __TEST MESSAGE__ dont send token as response or user will be able to reset pwd without checking email
-      res.status(200).json({
-        code: 200,
-        signature: token,
-        message: "Check Your Email to Continue !!",
-      });
-    }
-  } catch (error) {
-    next(error);
-  }
-};
-
-// export const UpdatePassword =async (req: Request, res: Response)=>{
-//   const { _id } = req.user
-//   // console.log(_id);
+// export const UpdatePassword = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
 //   try {
-//     const {password, confirm_password}  = req.body
-//     validateMongoId(_id)
-//     const newPassword : any = ( await createPasswordResetToken(password))
-//     const user = await UserModel.findById(_id)
-//     if(password){
-//       user!.passwordResetToken = newPassword
-//       const updatedtPassword = await user?.save()
-//       return res.status(200).json({message: "Password Successfully Updated", updatedtPassword})
+//     const { email } = req.body;
+//     const message = `${email}`
+//     const user = (await UserModel.findOne({
+//       where: { email: email },
+//     })) as unknown as UserInstance;
+//     if (!user) {
+//       // __TEST MESSAGE__ wrong message this should be an error
+//       return res.status(200).json({
+//         code: 200,
+//         message: "Check Your Email to Continue !!",
+//       });
+//     } else {
+//       const otp = await GenerateSalt();
+//       let token = await GenerateSignature({
+//         email,
+//         otp,
+//       });
+//       await UserModel.findOneAndUpdate(
+//         {
+//           otp: otp,
+//         },
+//         {
+//           where: { _id: user._id },
+//         }
+//       );
+//     await mailSent(FromAdminMail, email, userSubject, message);
+     
+//       // __TEST MESSAGE__ dont send token as response or user will be able to reset pwd without checking email
+//       res.status(200).json({
+//         code: 200,
+//         signature: token,
+//         message: "Check Your Email to Continue !!",
+//       });
 //     }
-//     return res.status(200).json(user)
-    
 //   } catch (error) {
-//     res.status(500).json({
-//       message: `Internal error ${error}`,
-//       route: "user/update-password router",
-//     });
+//     next(error);
 //   }
-// }
+// };
+
+export const UpdatePassword =async (req: Request, res: Response)=>{
+  const { _id } = req.user
+  // console.log(_id);
+  try {
+    const { password }  = req.body
+    validateMongoId(_id)
+    // const newPassword : any =  await createPasswordResetToken(password)
+    const user = await UserModel.findById(_id)
+    if(password){
+      user!.password = password
+      const updatedtPassword = await user?.save()
+      return res.status(200).json({message: "Password Successfully Updated", updatedtPassword})
+    }
+    return res.status(200).json(user)
+    
+  } catch (error) {
+    res.status(500).json({
+      message: `Internal error ${error}`,
+      route: "user/update-password router",
+    });
+  }
+}
 
 export const unblockedUser = async (req: Request, res: Response) => {
   const { id } = req.params;

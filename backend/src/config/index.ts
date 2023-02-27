@@ -17,5 +17,4 @@ export const GMAIL_PASSWORD = process.env.GMAIL_PASSWORD
 export const FromAdminMail = process.env.fromAdminMail as string
 export const userSubject = process.env.userSubject as string
 
-console.log(GMAIL_USER);
 
