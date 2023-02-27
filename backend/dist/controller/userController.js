@@ -306,10 +306,10 @@ const ForgotPasswordToken = async (req, res) => {
     try {
         const token = await user.createPasswordResetToken();
         await user.save();
-        const resetURL = `Hi, Please follow this link to reset your password.This link is valid till 10 minutes from now. <a href='https://localhost:4000/api/users/reset-password/${token}'>Please Click Here</a>`;
+        const resetURL = `Hi, Please follow this link to reset your password.This link is valid till 10 minutes from now. <a href='http://localhost:4000/api/users/reset-password/${token}'>Please Click Here</a>`;
         await (0, sendMail_1.mailSent)(config_1.FromAdminMail, email, config_1.userSubject, resetURL);
         console.log(token);
-        return res.status(200).json(user);
+        return res.status(200).json(token);
     }
     catch (error) {
         res.status(500).json({
@@ -335,6 +335,8 @@ const ResetPassword = async (req, res) => {
     user.password = password;
     user.passwordResetToken = "";
     user.passwordResetExpires = undefined;
+    await user.save();
+    return res.status(200).json(user);
 };
 exports.ResetPassword = ResetPassword;
 const unblockedUser = async (req, res) => {
