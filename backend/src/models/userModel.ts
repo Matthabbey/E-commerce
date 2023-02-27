@@ -17,7 +17,7 @@ export interface UserInstance{
     refreshToken: string,
     passwordChangedAt: Date,
     passwordResetToken: string,
-    passwordResetExpires: Date
+    passwordResetExpires: any
     createPasswordResetToken: any
 }
 // Declare the Schema of the Mongo model

@@ -3,11 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.unblockedUser = exports.ForgotPasswordToken = exports.UpdatePassword = exports.blockedUser = exports.deleteUser = exports.updateUser = exports.getSingleUser = exports.getAllUsers = exports.Logout = exports.handleRefreshToken = exports.Login = exports.CreateUser = void 0;
+exports.unblockedUser = exports.ResetPassword = exports.ForgotPasswordToken = exports.UpdatePassword = exports.blockedUser = exports.deleteUser = exports.updateUser = exports.getSingleUser = exports.getAllUsers = exports.Logout = exports.handleRefreshToken = exports.Login = exports.CreateUser = void 0;
 const userModel_1 = require("../models/userModel");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const utils_1 = require("../utilities/utils");
+const crypto_1 = __importDefault(require("crypto"));
 const refreshToken_1 = require("../config/refreshToken");
+const sendMail_1 = require("../utilities/sendMail");
+const config_1 = require("../config");
 const CreateUser = async (req, res) => {
     try {
         const { firstName, lastName, phone, password, email, confirm_password } = req.body;
@@ -278,7 +281,9 @@ const UpdatePassword = async (req, res) => {
         if (password) {
             user.password = password;
             const updatedtPassword = await user?.save();
-            return res.status(200).json({ message: "Password Successfully Updated", updatedtPassword });
+            return res
+                .status(200)
+                .json({ message: "Password Successfully Updated", updatedtPassword });
         }
         return res.status(200).json(user);
     }
@@ -300,11 +305,38 @@ const ForgotPasswordToken = async (req, res) => {
     }
     try {
         const token = await user.createPasswordResetToken();
+        await user.save();
+        const resetURL = `Hi, Please follow this link to reset your password.This link is valid till 10 minutes from now. <a href='https://localhost:4000/api/users/reset-password/${token}'>Please Click Here</a>`;
+        await (0, sendMail_1.mailSent)(config_1.FromAdminMail, email, config_1.userSubject, resetURL);
+        console.log(token);
+        return res.status(200).json(user);
     }
     catch (error) {
+        res.status(500).json({
+            message: `Internal error ${error}`,
+            route: "user/ForgotPasswordToken router",
+        });
     }
 };
 exports.ForgotPasswordToken = ForgotPasswordToken;
+const ResetPassword = async (req, res) => {
+    const { password } = req.body;
+    const { token } = req.params;
+    const hashToken = crypto_1.default.createHash("sha256").update(token).digest("hex");
+    const user = await userModel_1.UserModel.findOne({
+        passwordResetToken: hashToken,
+        passwordResetExpires: { $gt: Date.now() },
+    });
+    if (!user) {
+        return res.status(404).json({
+            message: "Token Expired, Please try again later.",
+        });
+    }
+    user.password = password;
+    user.passwordResetToken = "";
+    user.passwordResetExpires = undefined;
+};
+exports.ResetPassword = ResetPassword;
 const unblockedUser = async (req, res) => {
     const { id } = req.params;
     (0, utils_1.validateMongoId)(id);

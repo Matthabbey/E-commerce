@@ -10,6 +10,7 @@ import {
   registerSchema,
   validateMongoId,
 } from "../utilities/utils";
+import crypto from "crypto";
 import { GenerateRefreshToken } from "../config/refreshToken";
 import { mailSent } from "../utilities/sendMail";
 import { FromAdminMail, userSubject } from "../config";
@@ -275,7 +276,7 @@ export const blockedUser = async (req: Request, res: Response) => {
 //         }
 //       );
 //     await mailSent(FromAdminMail, email, userSubject, message);
-     
+
 //       // __TEST MESSAGE__ dont send token as response or user will be able to reset pwd without checking email
 //       res.status(200).json({
 //         code: 200,
@@ -288,43 +289,70 @@ export const blockedUser = async (req: Request, res: Response) => {
 //   }
 // };
 
-export const UpdatePassword =async (req: Request, res: Response)=>{
-  const { _id } = req.user
+export const UpdatePassword = async (req: Request, res: Response) => {
+  const { _id } = req.user;
   // console.log(_id);
   try {
-    const { password }  = req.body
-    validateMongoId(_id)
+    const { password } = req.body;
+    validateMongoId(_id);
     // const newPassword : any =  await createPasswordResetToken(password)
-    const user = await UserModel.findById(_id)
-    if(password){
-      user!.password = password
-      const updatedtPassword = await user?.save()
-      return res.status(200).json({message: "Password Successfully Updated", updatedtPassword})
+    const user = await UserModel.findById(_id);
+    if (password) {
+      user!.password = password;
+      const updatedtPassword = await user?.save();
+      return res
+        .status(200)
+        .json({ message: "Password Successfully Updated", updatedtPassword });
     }
-    return res.status(200).json(user)
-    
+    return res.status(200).json(user);
   } catch (error) {
     res.status(500).json({
       message: `Internal error ${error}`,
       route: "user/update-password router",
     });
   }
-}
+};
 
-export const ForgotPasswordToken = async (req: Request, res: Response)=>{
-  const { email } = req.body
-  const user = await UserModel.findOne({email})
-  if(!user){
+export const ForgotPasswordToken = async (req: Request, res: Response) => {
+  const { email } = req.body;
+  const user = await UserModel.findOne({ email });
+  if (!user) {
     return res.status(404).json({
       message: "There is no user with this email",
     });
   }
   try {
-    const token = await user.createPasswordResetToken()
+    const token = await user.createPasswordResetToken();
+    await user.save();
+    const resetURL = `Hi, Please follow this link to reset your password.This link is valid till 10 minutes from now. <a href='https://localhost:4000/api/users/reset-password/${token}'>Please Click Here</a>`;
+    await mailSent(FromAdminMail, email, userSubject, resetURL);
+    console.log(token);
+    return res.status(200).json(user);
   } catch (error) {
-    
+    res.status(500).json({
+      message: `Internal error ${error}`,
+      route: "user/ForgotPasswordToken router",
+    });
   }
-}
+};
+
+export const ResetPassword = async (req: Request, res: Response) => {
+  const { password } = req.body;
+  const { token } = req.params;
+  const hashToken = crypto.createHash("sha256").update(token).digest("hex");
+  const user = await UserModel.findOne({
+    passwordResetToken: hashToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+  if(!user){
+    return res.status(404).json({
+      message: "Token Expired, Please try again later.",
+    });
+  }
+  user.password = password;
+  user.passwordResetToken = "";
+  user.passwordResetExpires = undefined
+};
 
 export const unblockedUser = async (req: Request, res: Response) => {
   const { id } = req.params;
