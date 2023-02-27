@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.unblockedUser = exports.UpdatePassword = exports.blockedUser = exports.deleteUser = exports.updateUser = exports.getSingleUser = exports.getAllUsers = exports.Logout = exports.handleRefreshToken = exports.Login = exports.CreateUser = void 0;
+exports.unblockedUser = exports.ForgotPasswordToken = exports.UpdatePassword = exports.blockedUser = exports.deleteUser = exports.updateUser = exports.getSingleUser = exports.getAllUsers = exports.Logout = exports.handleRefreshToken = exports.Login = exports.CreateUser = void 0;
 const userModel_1 = require("../models/userModel");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const utils_1 = require("../utilities/utils");
@@ -290,6 +290,21 @@ const UpdatePassword = async (req, res) => {
     }
 };
 exports.UpdatePassword = UpdatePassword;
+const ForgotPasswordToken = async (req, res) => {
+    const { email } = req.body;
+    const user = await userModel_1.UserModel.findOne({ email });
+    if (!user) {
+        return res.status(404).json({
+            message: "There is no user with this email",
+        });
+    }
+    try {
+        const token = await user.createPasswordResetToken();
+    }
+    catch (error) {
+    }
+};
+exports.ForgotPasswordToken = ForgotPasswordToken;
 const unblockedUser = async (req, res) => {
     const { id } = req.params;
     (0, utils_1.validateMongoId)(id);

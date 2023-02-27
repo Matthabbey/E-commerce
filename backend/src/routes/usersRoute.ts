@@ -11,6 +11,7 @@ import {
   handleRefreshToken,
   Logout,
   UpdatePassword,
+  ForgotPasswordToken,
 } from "../controller/userController";
 import { authMiddleware, isAdmin } from "../middlewares/authRoutes";
 const router = express.Router();
@@ -18,6 +19,7 @@ const router = express.Router();
 /* GET users listing. */
 router.post("/register", CreateUser);
 router.post("/login", Login);
+router.post('/forgot-password-token', ForgotPasswordToken)
 router.put('/password', authMiddleware, UpdatePassword)
 router.get("/getusers", getAllUsers);
 router.get("/singleuser/:id", authMiddleware, isAdmin, getSingleUser);

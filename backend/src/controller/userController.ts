@@ -311,6 +311,21 @@ export const UpdatePassword =async (req: Request, res: Response)=>{
   }
 }
 
+export const ForgotPasswordToken = async (req: Request, res: Response)=>{
+  const { email } = req.body
+  const user = await UserModel.findOne({email})
+  if(!user){
+    return res.status(404).json({
+      message: "There is no user with this email",
+    });
+  }
+  try {
+    const token = await user.createPasswordResetToken()
+  } catch (error) {
+    
+  }
+}
+
 export const unblockedUser = async (req: Request, res: Response) => {
   const { id } = req.params;
   validateMongoId(id);

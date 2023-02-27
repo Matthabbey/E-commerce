@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserModel = exports.userSchema = void 0;
 const mongoose_1 = __importDefault(require("mongoose")); // Erase if already required
+const crypto_1 = __importDefault(require("crypto"));
 // Declare the Schema of the Mongo model
 exports.userSchema = new mongoose_1.default.Schema({
     firstName: {
@@ -46,11 +47,17 @@ exports.userSchema = new mongoose_1.default.Schema({
     refreshToken: {
         type: String
     },
-    passwordChangedAt: { type: Date },
-    passwordResetToken: { type: String },
-    passwordResetExpires: { type: Date }
+    passwordChangedAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date
 }, {
     timestamps: true
 });
+exports.userSchema.methods.createPasswordResetToken = async function () {
+    const resettoken = crypto_1.default.randomBytes(32).toString('hex');
+    this.passwordResetToken = crypto_1.default.createHash('sha256').update(resettoken).digest('hex');
+    this.passwordResetExpires = Date.now() + 30 * 60 * 1000;
+    return resettoken;
+};
 //Export the model
 exports.UserModel = mongoose_1.default.model('UserData', exports.userSchema);

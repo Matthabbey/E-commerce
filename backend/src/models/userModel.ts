@@ -1,4 +1,6 @@
 import  mongoose from 'mongoose'; // Erase if already required
+import { createPasswordResetToken } from '../utilities/utils';
+import crypto from 'crypto'
 
 export interface UserInstance{
     firstName: string,
@@ -16,6 +18,7 @@ export interface UserInstance{
     passwordChangedAt: Date,
     passwordResetToken: string,
     passwordResetExpires: Date
+    createPasswordResetToken: any
 }
 // Declare the Schema of the Mongo model
 export const userSchema = new mongoose.Schema<UserInstance>({
@@ -58,14 +61,21 @@ export const userSchema = new mongoose.Schema<UserInstance>({
     refreshToken: {
         type: String
     },
-
-    passwordChangedAt: {type: Date},
-    passwordResetToken: {type: String},
-    passwordResetExpires: {type: Date}
+    passwordChangedAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date
 },
 {
 timestamps: true
 });
+
+
+userSchema.methods.createPasswordResetToken = async function(){
+    const resettoken = crypto.randomBytes(32).toString('hex')
+    this.passwordResetToken = crypto.createHash('sha256').update(resettoken).digest('hex');
+    this.passwordResetExpires = Date.now() + 30 * 60 * 1000;
+    return resettoken
+}
 
 //Export the model
 export const UserModel = mongoose.model<UserInstance>('UserData', userSchema);
