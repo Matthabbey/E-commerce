@@ -368,6 +368,8 @@ export const ForgotPasswordToken = async (req: Request, res: Response) => {
 
 export const ResetPassword = async (req: Request, res: Response) => {
   const { password } = req.body;
+  const salt = await GenerateSalt();
+  const userPassword = await GeneratePassword(password, salt);
   const { token } = req.params;
   const hashToken = crypto.createHash("sha256").update(token).digest("hex");
   const user = await UserModel.findOne({
@@ -379,7 +381,7 @@ export const ResetPassword = async (req: Request, res: Response) => {
       message: "Token Expired, Please try again later.",
     });
   }
-  user.password = password;
+  user.password = userPassword;
   user.passwordResetToken = "null";
   user.passwordResetExpires = undefined
   await user.save()
