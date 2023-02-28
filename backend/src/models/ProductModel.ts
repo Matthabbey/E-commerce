@@ -63,7 +63,7 @@ export interface ProductInstance {
         star: Number,
         postedby: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
+          ref: "UserData",
         },
       },
     ],
