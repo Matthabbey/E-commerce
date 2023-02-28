@@ -10,9 +10,9 @@ import {
   unblockedUser,
   handleRefreshToken,
   Logout,
-  UpdatePassword,
   ForgotPasswordToken,
   ResetPassword,
+  UpdatedPassword,
 } from "../controller/userController";
 import { authMiddleware, isAdmin } from "../middlewares/authRoutes";
 const router = express.Router();
@@ -22,7 +22,7 @@ router.post("/register", CreateUser);
 router.post("/login", Login);
 router.post('/forgot-password-token', ForgotPasswordToken)
 router.put('/reset-password/:token', ResetPassword)
-router.put('/password', authMiddleware, UpdatePassword)
+router.put('/password', authMiddleware, UpdatedPassword)
 router.get("/getusers", getAllUsers);
 router.get("/singleuser/:id", authMiddleware, isAdmin, getSingleUser);
 router.put("/update", authMiddleware, updateUser);

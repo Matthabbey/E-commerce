@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.unblockedUser = exports.ResetPassword = exports.ForgotPasswordToken = exports.UpdatePassword = exports.blockedUser = exports.deleteUser = exports.updateUser = exports.getSingleUser = exports.getAllUsers = exports.Logout = exports.handleRefreshToken = exports.Login = exports.CreateUser = void 0;
+exports.unblockedUser = exports.ResetPassword = exports.ForgotPasswordToken = exports.UpdatedPassword = exports.blockedUser = exports.deleteUser = exports.updateUser = exports.getSingleUser = exports.getAllUsers = exports.Logout = exports.handleRefreshToken = exports.Login = exports.CreateUser = void 0;
 const userModel_1 = require("../models/userModel");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const utils_1 = require("../utilities/utils");
@@ -44,7 +44,7 @@ const CreateUser = async (req, res) => {
     }
     catch (error) {
         res.status(500).json({
-            Error: "Internal server Error",
+            Error: `Internal Server ${error}`,
             route: "/user/signup",
         });
         console.log(error);
@@ -89,7 +89,7 @@ const Login = async (req, res) => {
     catch (error) {
         console.log(error);
         res.status(500).json({
-            Error: "Internal server Error",
+            Error: `Internal Server ${error}`,
             route: "/user/signup",
         });
     }
@@ -146,7 +146,7 @@ const getAllUsers = async (req, res) => {
     }
     catch (err) {
         res.status(500).json({
-            Error: "Internal server Error",
+            Error: `Internal Server ${err}`,
             route: "users/get-all-users",
         });
     }
@@ -180,7 +180,7 @@ const updateUser = async (req, res) => {
     }
     catch (error) {
         res.status(500).json({
-            message: "Internal Server Error",
+            Error: `Internal Server ${error}`,
             route: "todo/update router",
         });
     }
@@ -203,7 +203,7 @@ const deleteUser = async (req, res) => {
     }
     catch (error) {
         res.status(500).json({
-            message: "Internal Server Error",
+            Error: `Internal Server ${error}`,
             route: "user/delete router",
         });
     }
@@ -242,7 +242,7 @@ exports.blockedUser = blockedUser;
 //       // __TEST MESSAGE__ wrong message this should be an error
 //       return res.status(200).json({
 //         code: 200,
-//         message: "Check Your Email to Continue !!",
+//         message: "Check Your Email to Continue now !!",
 //       });
 //     } else {
 //       const otp = await GenerateSalt();
@@ -250,7 +250,7 @@ exports.blockedUser = blockedUser;
 //         email,
 //         otp,
 //       });
-//       await UserModel.findOneAndUpdate(
+//       const newP = await UserModel.findOneAndUpdate(
 //         {
 //           otp: otp,
 //         },
@@ -258,11 +258,10 @@ exports.blockedUser = blockedUser;
 //           where: { _id: user._id },
 //         }
 //       );
-//     await mailSent(FromAdminMail, email, userSubject, message);
+//     // await mailSent(FromAdminMail, email, userSubject, message);
 //       // __TEST MESSAGE__ dont send token as response or user will be able to reset pwd without checking email
 //       res.status(200).json({
-//         code: 200,
-//         signature: token,
+//         signature: newP,
 //         message: "Check Your Email to Continue !!",
 //       });
 //     }
@@ -270,31 +269,55 @@ exports.blockedUser = blockedUser;
 //     next(error);
 //   }
 // };
-const UpdatePassword = async (req, res) => {
+// export const UpdatePassword = async (req: Request, res: Response) => {
+//   const { _id } = req.user;
+//   // console.log(_id);
+//   try {
+//     const password  = req.body;
+//     validateMongoId(_id);
+//     // const newPassword : any =  await createPasswordResetToken(password)
+//     const user = await UserModel.findById(_id);
+//     console.log(user?.password);
+//     console.log("heyyy senior man");
+//     // const isMatch = await bcrypt.compare(password, user!.password)
+//     // if(!isMatch) return res.status(404).json('There is no matched password')
+//     if(password === user!.password){
+//       return res.status(404).json('New password must be different from the old password');
+//     }
+//     const saltRounds = 10;
+//     const hashedPassword = await bcrypt.hash(password, saltRounds);
+//       user!.password = hashedPassword;
+//       const newPassword = await user?.save();
+//       return res
+//         .status(200)
+//         .json({ message: "Password Successfully Updated", newPassword });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({
+//       message: `Internal error ${error}`,
+//       route: "user/update-password router",
+//     });
+//   }
+// };
+const UpdatedPassword = async (req, res) => {
     const { _id } = req.user;
-    // console.log(_id);
-    try {
-        const { password } = req.body;
-        (0, utils_1.validateMongoId)(_id);
-        // const newPassword : any =  await createPasswordResetToken(password)
-        const user = await userModel_1.UserModel.findById(_id);
-        if (password) {
-            user.password = password;
-            const updatedtPassword = await user?.save();
-            return res
-                .status(200)
-                .json({ message: "Password Successfully Updated", updatedtPassword });
-        }
-        return res.status(200).json(user);
+    const { password } = req.body;
+    const salt = await (0, utils_1.GenerateSalt)();
+    const userPassword = await (0, utils_1.GeneratePassword)(password, salt);
+    (0, utils_1.validateMongoId)(_id);
+    const user = await userModel_1.UserModel.findById(_id);
+    console.log(user);
+    if (userPassword) {
+        user.password = userPassword;
+        console.log(user);
+        const updatedPassword = await user?.save();
+        res.json(updatedPassword);
     }
-    catch (error) {
-        res.status(500).json({
-            message: `Internal error ${error}`,
-            route: "user/update-password router",
-        });
+    else {
+        res.json(user);
     }
 };
-exports.UpdatePassword = UpdatePassword;
+exports.UpdatedPassword = UpdatedPassword;
 const ForgotPasswordToken = async (req, res) => {
     const { email } = req.body;
     const user = await userModel_1.UserModel.findOne({ email });
@@ -333,7 +356,7 @@ const ResetPassword = async (req, res) => {
         });
     }
     user.password = password;
-    user.passwordResetToken = "";
+    user.passwordResetToken = "null";
     user.passwordResetExpires = undefined;
     await user.save();
     return res.status(200).json(user);

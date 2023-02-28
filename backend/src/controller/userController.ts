@@ -51,7 +51,7 @@ export const CreateUser = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({
-      Error: "Internal server Error",
+      Error: `Internal Server ${error}`,
       route: "/user/signup",
     });
     console.log(error);
@@ -102,7 +102,7 @@ export const Login = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      Error: "Internal server Error",
+      Error: `Internal Server ${error}`,
       route: "/user/signup",
     });
   }
@@ -161,7 +161,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
     });
   } catch (err) {
     res.status(500).json({
-      Error: "Internal server Error",
+      Error: `Internal Server ${err}`,
       route: "users/get-all-users",
     });
   }
@@ -193,7 +193,7 @@ export const updateUser = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({
-      message: "Internal Server Error",
+      Error: `Internal Server ${error}`,
       route: "todo/update router",
     });
   }
@@ -216,7 +216,7 @@ export const deleteUser = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({
-      message: "Internal Server Error",
+      Error: `Internal Server ${error}`,
       route: "user/delete router",
     });
   }
@@ -259,7 +259,7 @@ export const blockedUser = async (req: Request, res: Response) => {
 //       // __TEST MESSAGE__ wrong message this should be an error
 //       return res.status(200).json({
 //         code: 200,
-//         message: "Check Your Email to Continue !!",
+//         message: "Check Your Email to Continue now !!",
 //       });
 //     } else {
 //       const otp = await GenerateSalt();
@@ -267,7 +267,7 @@ export const blockedUser = async (req: Request, res: Response) => {
 //         email,
 //         otp,
 //       });
-//       await UserModel.findOneAndUpdate(
+//       const newP = await UserModel.findOneAndUpdate(
 //         {
 //           otp: otp,
 //         },
@@ -275,12 +275,11 @@ export const blockedUser = async (req: Request, res: Response) => {
 //           where: { _id: user._id },
 //         }
 //       );
-//     await mailSent(FromAdminMail, email, userSubject, message);
+//     // await mailSent(FromAdminMail, email, userSubject, message);
 
 //       // __TEST MESSAGE__ dont send token as response or user will be able to reset pwd without checking email
 //       res.status(200).json({
-//         code: 200,
-//         signature: token,
+//         signature: newP,
 //         message: "Check Your Email to Continue !!",
 //       });
 //     }
@@ -289,30 +288,61 @@ export const blockedUser = async (req: Request, res: Response) => {
 //   }
 // };
 
-export const UpdatePassword = async (req: Request, res: Response) => {
-  const { _id } = req.user;
-  // console.log(_id);
-  try {
-    const { password } = req.body;
-    validateMongoId(_id);
-    // const newPassword : any =  await createPasswordResetToken(password)
-    const user = await UserModel.findById(_id);
-    if (password) {
-      user!.password = password;
-      const updatedtPassword = await user?.save();
-      return res
-        .status(200)
-        .json({ message: "Password Successfully Updated", updatedtPassword });
-    }
-    return res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({
-      message: `Internal error ${error}`,
-      route: "user/update-password router",
-    });
-  }
-};
+// export const UpdatePassword = async (req: Request, res: Response) => {
+//   const { _id } = req.user;
+//   // console.log(_id);
+//   try {
+//     const password  = req.body;
+//     validateMongoId(_id);
+//     // const newPassword : any =  await createPasswordResetToken(password)
+//     const user = await UserModel.findById(_id);
 
+//     console.log(user?.password);
+    
+//     console.log("heyyy senior man");
+//     // const isMatch = await bcrypt.compare(password, user!.password)
+
+//     // if(!isMatch) return res.status(404).json('There is no matched password')
+//     if(password === user!.password){
+//       return res.status(404).json('New password must be different from the old password');
+//     }
+//     const saltRounds = 10;
+//     const hashedPassword = await bcrypt.hash(password, saltRounds);
+//       user!.password = hashedPassword;
+//       const newPassword = await user?.save();
+//       return res
+//         .status(200)
+//         .json({ message: "Password Successfully Updated", newPassword });
+//   } catch (error) {
+//     console.log(error);
+    
+//     res.status(500).json({
+//       message: `Internal error ${error}`,
+//       route: "user/update-password router",
+//     });
+//   }
+// };
+
+export const UpdatedPassword = async (req: Request, res: Response) =>{
+  const { _id } = req.user
+  const { password } = req.body
+  const salt = await GenerateSalt();
+  const userPassword = await GeneratePassword(password, salt);
+  validateMongoId(_id)
+  const user = await UserModel.findById(_id)
+  console.log(user);
+  
+  if(userPassword){
+    user!.password = userPassword
+    console.log(user);
+    
+    const updatedPassword = await user?.save()
+    res.json(updatedPassword)
+  }else{
+    res.json(user)
+  }
+  
+}
 export const ForgotPasswordToken = async (req: Request, res: Response) => {
   const { email } = req.body;
   const user = await UserModel.findOne({ email });
@@ -350,7 +380,7 @@ export const ResetPassword = async (req: Request, res: Response) => {
     });
   }
   user.password = password;
-  user.passwordResetToken = "";
+  user.passwordResetToken = "null";
   user.passwordResetExpires = undefined
   await user.save()
   return res.status(200).json(user);
