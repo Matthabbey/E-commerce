@@ -36,6 +36,8 @@ export const UpdateBlog = async (req: Request, res: Response) => {
   export const GetSingleBlog = async (req: Request, res: Response) => {
     try {
         const { id } = req.params
+    validateMongoId(id);
+
       //Request dot Query(req.query) is use to sort, filter or cause a limit of views to what you want to see in the getAll http method.
       const blog = await BlogModel.findById(id);
       const getview = await BlogModel.findByIdAndUpdate(id, {
