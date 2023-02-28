@@ -47,7 +47,6 @@ const CreateUser = async (req, res) => {
             Error: `Internal Server ${error}`,
             route: "/user/signup",
         });
-        console.log(error);
     }
 };
 exports.CreateUser = CreateUser;
