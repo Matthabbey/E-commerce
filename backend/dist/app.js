@@ -11,6 +11,7 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const morgan_1 = __importDefault(require("morgan"));
 const productRoute_1 = __importDefault(require("./routes/productRoute"));
 const ProductCategoryRoute_1 = __importDefault(require("./routes/ProductCategoryRoute"));
+const blogCategoryRoute_1 = __importDefault(require("./routes/blogCategoryRoute"));
 const blogRoute_1 = __importDefault(require("./routes/blogRoute"));
 const usersRoute_1 = __importDefault(require("./routes/usersRoute"));
 const index_1 = __importDefault(require("./config/index"));
@@ -28,7 +29,8 @@ app.use(express_1.default.static(path_1.default.join(__dirname, "public")));
 app.use("/api/users", usersRoute_1.default);
 app.use("/api/products", productRoute_1.default);
 app.use("/api/blog", blogRoute_1.default);
-app.use("/api/category", ProductCategoryRoute_1.default);
+app.use("/api/product/category", ProductCategoryRoute_1.default);
+app.use("/api/blog/category", blogCategoryRoute_1.default);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
     next((0, http_errors_1.default)(404));
