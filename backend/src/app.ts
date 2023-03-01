@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 
 import productRouter from "./routes/productRoute";
-import categoryRouter from './routes/categoryRoute'
+import categoryRouter from './routes/ProductCategoryRoute'
 import blogRouter from "./routes/blogRoute";
 import usersRouter from "./routes/usersRoute";
 import connectMongoDB from "./config/index";

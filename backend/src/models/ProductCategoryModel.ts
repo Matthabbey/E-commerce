@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'; // Erase if already required
 
 // Declare the Schema of the Mongo model
-const CategorySchema = new mongoose.Schema({
+const ProductCategorySchema = new mongoose.Schema({
     title:{
         type:String,
         required:true,
@@ -14,4 +14,4 @@ const CategorySchema = new mongoose.Schema({
 });
 
 //Export the model
-export const CategoryModel = mongoose.model('Category', CategorySchema);
+export const ProductCategoryModel = mongoose.model('ProductCategory', ProductCategorySchema);
