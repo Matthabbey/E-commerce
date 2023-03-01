@@ -297,7 +297,7 @@ export const blockedUser = async (req: Request, res: Response) => {
 //     const user = await UserModel.findById(_id);
 
 //     console.log(user?.password);
-    
+
 //     console.log("heyyy senior man");
 //     // const isMatch = await bcrypt.compare(password, user!.password)
 
@@ -314,7 +314,7 @@ export const blockedUser = async (req: Request, res: Response) => {
 //         .json({ message: "Password Successfully Updated", newPassword });
 //   } catch (error) {
 //     console.log(error);
-    
+
 //     res.status(500).json({
 //       message: `Internal error ${error}`,
 //       route: "user/update-password router",
@@ -322,26 +322,25 @@ export const blockedUser = async (req: Request, res: Response) => {
 //   }
 // };
 
-export const UpdatedPassword = async (req: Request, res: Response) =>{
-  const { _id } = req.user
-  const { password } = req.body
+export const UpdatedPassword = async (req: Request, res: Response) => {
+  const { _id } = req.user;
+  const { password } = req.body;
   const salt = await GenerateSalt();
   const userPassword = await GeneratePassword(password, salt);
-  validateMongoId(_id)
-  const user = await UserModel.findById(_id)
+  validateMongoId(_id);
+  const user = await UserModel.findById(_id);
   console.log(user);
-  
-  if(userPassword){
-    user!.password = userPassword
+
+  if (userPassword) {
+    user!.password = userPassword;
     console.log(user);
-    
-    const updatedPassword = await user?.save()
-    res.json(updatedPassword)
-  }else{
-    res.json(user)
+
+    const updatedPassword = await user?.save();
+    res.json(updatedPassword);
+  } else {
+    res.json(user);
   }
-  
-}
+};
 export const ForgotPasswordToken = async (req: Request, res: Response) => {
   const { email } = req.body;
   const user = await UserModel.findOne({ email });
@@ -375,17 +374,16 @@ export const ResetPassword = async (req: Request, res: Response) => {
     passwordResetToken: hashToken,
     passwordResetExpires: { $gt: Date.now() },
   });
-  if(!user){
+  if (!user) {
     return res.status(404).json({
       message: "Token Expired, Please try again later.",
     });
   }
   user.password = userPassword;
   user.passwordResetToken = "null";
-  user.passwordResetExpires = undefined
-  await user.save()
+  user.passwordResetExpires = undefined;
+  await user.save();
   return res.status(200).json(user);
-
 };
 
 export const unblockedUser = async (req: Request, res: Response) => {

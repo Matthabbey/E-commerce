@@ -12,14 +12,15 @@ export const authMiddleware = async (req: JwtPayload, res: Response, next: NextF
     }
     const token = authorization.slice(7, authorization.length)
     let verified = Jwt.verify(token, process.env.SECRET!)
-    console.log(verified)
+    // console.log(verified)
     if(!verified){
         return  res.status(401).json({
             message: "User not authorized"
         })
     }
+    
     const {id} = verified as {[key:string]: string}
-
+    
     // Find the user by id
     const user = await UserModel.find({where:{_id:id}}) as unknown as UserInstance
     if(!user){
@@ -27,6 +28,7 @@ export const authMiddleware = async (req: JwtPayload, res: Response, next: NextF
             Error: "Invalid Credentials"
         })
     }
+    // console.log('here', user);
     req.user = verified;
     next()
    } catch (error) {
