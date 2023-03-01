@@ -41,7 +41,7 @@ export const GetSingleBlog = async (req: Request, res: Response) => {
     validateMongoId(id);
 
     //Request dot Query(req.query) is use to sort, filter or cause a limit of views to what you want to see in the getAll http method.
-    const blog = await BlogModel.findById(id);
+    const blog = await BlogModel.findById(id).populate("likes").populate("dislikes");
     const getview = await BlogModel.findByIdAndUpdate(
       id,
       {
@@ -104,31 +104,17 @@ export const DeleteBlog = async (req: Request, res: Response) => {
 export const likedBlog = async (req: Request, res: Response) => {
   try {
     const { blogId } = req.body;
-    // validateMongoId(blogId);
-    console.log(blogId);
+    validateMongoId(blogId);
 
     //   //Find blog you want to like by Id
     const blog = await BlogModel.findById(blogId);
     //   //Find the login user
-    // console.log(blog);
-
     const loginUserId = req?.user?._id;
-    console.log("jjjjj",loginUserId.toString());
-
     //   //Find if the user has been liked
     const isLiked = blog?.isLiked;
-    // console.log(isLiked);
-
-    // //Find if the user has been disliked
-    console.log(blog?.dislikes);
-    
-
-    const alreadyDisliked = blog?.dislikes?.find((userId) => userId.toString() === loginUserId.toString())
-
-    console.log(alreadyDisliked);
+    const alreadyDisliked = blog?.dislikes?.includes(loginUserId.toString());
 
     if (alreadyDisliked) {
-      console.log("here now");
       const blogPost = await BlogModel.findByIdAndUpdate(
         blogId,
         {
@@ -139,14 +125,85 @@ export const likedBlog = async (req: Request, res: Response) => {
           new: true,
         }
       );
-      return res.status(200).json(blogPost);
+     return res.status(200).json(blogPost);
     }
-    if (!isLiked) {
+    if (isLiked) {
+      const blog = await BlogModel.findByIdAndUpdate(
+        blogId,
+        {
+          $pull: { likes: loginUserId },
+          isLiked: false,
+        },
+        {
+          new: true,
+        }
+      );
+      return res.status(200).json(blog);
+    } else {
       const blog = await BlogModel.findByIdAndUpdate(
         blogId,
         {
           $push: { likes: loginUserId },
           isLiked: true,
+        },
+        {
+          new: true,
+        }
+      );
+      return res.status(200).json(blog);
+    }
+  } catch (error) {
+    res.status(500).json({
+      Error: `Internal server ${error}`,
+      route: "/blog/likes-blog",
+    });
+  }
+};
+
+export const DislikedBlog = async (req: Request, res: Response) => {
+  try {
+    const { blogId } = req.body;
+    validateMongoId(blogId);
+
+    //   //Find blog you want to like by Id
+    const blog = await BlogModel.findById(blogId);
+    //   //Find the login user
+    const loginUserId = req?.user?._id;
+    //   //Find if the user has been liked
+    const isDisLiked = blog?.isDisliked;
+    const alreadyLiked = blog?.likes?.includes(loginUserId.toString());
+
+    if (alreadyLiked) {
+      const blogPost = await BlogModel.findByIdAndUpdate(
+        blogId,
+        {
+          $pull: { likes: loginUserId },
+          isLiked: false,
+        },
+        {
+          new: true,
+        }
+      );
+      return res.status(200).json(blogPost);
+    }
+    if (isDisLiked) {
+      const blog = await BlogModel.findByIdAndUpdate(
+        blogId,
+        {
+          $pull: { dislikes: loginUserId },
+          isDisliked: false,
+        },
+        {
+          new: true,
+        }
+      );
+      return res.status(200).json(blog);
+    } else {
+      const blog = await BlogModel.findByIdAndUpdate(
+        blogId,
+        {
+          $push: { dislikes: loginUserId },
+          isDisliked: true,
         },
         {
           new: true,
