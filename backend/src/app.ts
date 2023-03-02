@@ -6,8 +6,9 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 
 import productRouter from "./routes/productRoute";
-import productCategoryRouter from './routes/ProductCategoryRoute'
-import blogCategoryRouter from './routes/blogCategoryRoute'
+import productCategoryRouter from "./routes/ProductCategoryRoute";
+import brandRouter from "./routes/brandRoute";
+import blogCategoryRouter from "./routes/blogCategoryRoute";
 import blogRouter from "./routes/blogRoute";
 import usersRouter from "./routes/usersRoute";
 import connectMongoDB from "./config/index";
@@ -31,6 +32,7 @@ app.use("/api/products", productRouter);
 app.use("/api/blog", blogRouter);
 app.use("/api/product/category", productCategoryRouter);
 app.use("/api/blog/category", blogCategoryRouter);
+app.use("/api/brand", brandRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
