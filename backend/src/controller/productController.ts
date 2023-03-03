@@ -57,8 +57,6 @@ export const GetAllProducts = async (req: Request, res: Response) => {
         }
         
     }
-    console.log(page, limit);
-    
 
     const products = await query;
     return res.status(200).json({
