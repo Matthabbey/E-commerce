@@ -30,32 +30,29 @@ export const GetAllProducts = async (req: Request, res: Response) => {
     let query = ProductModel.find(JSON.parse(queryStr));
 
     //Sort
-    if(req.query.sort){
-        const sortBy = req.query.sort.split(',').join(' ')
-        query = query.sort(sortBy)
-    }else{
-        query = query.sort("-createdAt")
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(",").join(" ");
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort("-createdAt");
     }
     //Limiting the showing fields
-    if(req.query.fields){
-        const fields = req.query.fields.split(',').join(' ')
-        query = query.select(fields)
-
-    }else{
-        query = query.select("-__v")
-
+    if (req.query.fields) {
+      const fields = req.query.fields.split(",").join(" ");
+      query = query.select(fields);
+    } else {
+      query = query.select("-__v");
     }
     //Pagination
-    const page: any = req.query.page
-    const limit: any = req.query.limit
-    const skip = (page - 1) * limit
-    query = query.skip(skip).limit(limit)
-    if(req.query.page){
-        const productCount = await ProductModel.countDocuments()
-        if(skip >= productCount){
-           return res.status(404).json({msg: "Sorry, This page does not exits"})
-        }
-        
+    const page: any = req.query.page;
+    const limit: any = req.query.limit;
+    const skip = (page - 1) * limit;
+    query = query.skip(skip).limit(limit);
+    if (req.query.page) {
+      const productCount = await ProductModel.countDocuments();
+      if (skip >= productCount) {
+        return res.status(404).json({ msg: "Sorry, This page does not exits" });
+      }
     }
 
     const products = await query;
@@ -70,6 +67,17 @@ export const GetAllProducts = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const AddToWishList = async (req: Request, res: Response)=>{
+  try {
+    
+  } catch (error) {
+    res.status(500).json({
+      Error: `Internal server ${error}`,
+      route: "/wishlist/product",
+    });
+  }
+}
 
 export const GetSingleProduct = async (req: Request, res: Response) => {
   try {
