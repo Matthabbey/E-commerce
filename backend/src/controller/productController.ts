@@ -76,6 +76,7 @@ export const AddToWishList = async (req: Request, res: Response)=>{
     const user = await UserModel.findById(id)
     const alreadyExist = user?.wishList.find((id) => id.toString === prodId)
     console.log(alreadyExist);
+    
      
   } catch (error) {
     res.status(500).json({
