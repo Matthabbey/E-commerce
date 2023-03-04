@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { ProductModel } from "../models/ProductModel";
 import slugify from "slugify";
 import { validateMongoId } from "../utilities/utils";
+import { UserModel } from "../models/userModel";
 
 export const CreateProduct = async (req: Request, res: Response) => {
   try {
@@ -69,8 +70,13 @@ export const GetAllProducts = async (req: Request, res: Response) => {
 };
 
 export const AddToWishList = async (req: Request, res: Response)=>{
+  const { id } = req.user
+  const prodId = req.body
   try {
-    
+    const user = await UserModel.findById(id)
+    const alreadyExist = user?.wishList.find((id) => id.toString === prodId)
+    console.log(alreadyExist);
+     
   } catch (error) {
     res.status(500).json({
       Error: `Internal server ${error}`,
