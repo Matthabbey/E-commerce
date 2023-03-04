@@ -75,6 +75,15 @@ export const AddToWishList = async (req: Request, res: Response)=>{
   try {
     const user = await UserModel.findById(id)
     const alreadyExist = user?.wishList.find((id) => id.toString === prodId)
+    if(alreadyExist){
+      let user = await UserModel.findByIdAndUpdate(id, {
+        $pull: {wishlist: prodId}
+      },
+      {
+        new: true
+      })
+      res.json(user)
+    }
 
      
   } catch (error) {
