@@ -69,30 +69,43 @@ export const GetAllProducts = async (req: Request, res: Response) => {
   }
 };
 
-export const AddToWishList = async (req: Request, res: Response)=>{
-  const { id } = req.user
-  const prodId = req.body
+export const AddToWishList = async (req: Request, res: Response) => {
+  const { id } = req.user;
+  const prodId = req.body;
   try {
-    const user = await UserModel.findById(id)
-    const alreadyExist = user?.wishList.find((id) => id.toString === prodId)
-    if(alreadyExist){
-      let user = await UserModel.findByIdAndUpdate(id, {
-        $pull: {wishlist: prodId}
-      },
-      {
-        new: true
-      })
-      res.json(user)
-    }
+    const user = await UserModel.findById(id);
+    const alreadyExist = user?.wishList.find((id) => id.toString === prodId);
+    if (alreadyExist) {
+      let user = await UserModel.findByIdAndUpdate(
+        id,
+        {
+          $pull: { wishlist: prodId },
+        },
+        {
+          new: true,
+        }
+      );
+      res.json(user);
+    } else {
+      let user = await UserModel.findByIdAndUpdate(
+        id,
+        {
+          $push: { wishList: prodId },
+        },
 
-     
+        {
+          new: true,
+        }
+      );
+      res.json(user);
+    }
   } catch (error) {
     res.status(500).json({
       Error: `Internal server ${error}`,
       route: "/wishlist/product",
     });
   }
-}
+};
 
 export const GetSingleProduct = async (req: Request, res: Response) => {
   try {
