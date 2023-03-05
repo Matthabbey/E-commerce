@@ -71,40 +71,42 @@ export const GetAllProducts = async (req: Request, res: Response) => {
 
 export const AddToWishList = async (req: Request, res: Response) => {
   const { _id } = req.user;
-  const prodId = req.body;
+  const { prodId } = req.body;
+  validateMongoId(prodId);
   try {
-    
+
     const user = await UserModel.findById(_id);
-    const alreadyExist = user?.wishList.includes(prodId.toString());
-    
-    if (alreadyExist) {
-      let user = await UserModel.findByIdAndUpdate(
-        _id,
-        {
-          $pull: { wishList: prodId },
-        },
-        {
-          new: true,
-        }
-      );
-      res.json(user);
-      
-    } else {
-      let user = await UserModel.findByIdAndUpdate(
-        _id,
-        {
-          $push: { wishList: prodId },
-        },
+    if(!prodId){
 
-        {
-          new: true,
-        }
-      );
-      res.json(user);
+      const alreadyExist = user?.wishList.includes(prodId.toString());
       
-    }
+      if (alreadyExist) {
+        let user = await UserModel.findByIdAndUpdate(
+          _id,
+          {
+            $pull: { wishList: prodId },
+          },
+          {
+            new: true,
+          }
+          );
+          res.json(user);
+        } else {
+          let user = await UserModel.findByIdAndUpdate(
+            _id,
+            {
+              $push: { wishList: prodId },
+            },
+            
+            {
+              new: true,
+            }
+            );
+            res.json(user);
+          }
+        }
+        return res.status(404).json({message: "There is no product matches, add a valid product"})
   } catch (error) {
-
     res.status(500).json({
       Error: `Internal server ${error}`,
       route: "/wishlist/product",
