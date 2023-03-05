@@ -74,12 +74,11 @@ export const AddToWishList = async (req: Request, res: Response) => {
   const { prodId } = req.body;
   validateMongoId(prodId);
   try {
-
     const user = await UserModel.findById(_id);
 
-    if(prodId && user){
+    if (prodId && user) {
       const alreadyExist = user?.wishList.includes(prodId.toString());
-      
+
       if (alreadyExist) {
         let user = await UserModel.findByIdAndUpdate(
           _id,
@@ -89,23 +88,25 @@ export const AddToWishList = async (req: Request, res: Response) => {
           {
             new: true,
           }
-          );
-         return res.json(user);
-        } else {
-          let user = await UserModel.findByIdAndUpdate(
-            _id,
-            {
-              $push: { wishList: prodId },
-            },
-            
-            {
-              new: true,
-            }
-            );
-            return res.json(user);
+        );
+        return res.json(user);
+      } else {
+        let user = await UserModel.findByIdAndUpdate(
+          _id,
+          {
+            $push: { wishList: prodId },
+          },
+
+          {
+            new: true,
           }
-        }
-        return res.status(404).json({message: "There is no product matches, add a valid product"})
+        );
+        return res.json(user);
+      }
+    }
+    return res
+      .status(404)
+      .json({ message: "There is no product matches, add a valid product" });
   } catch (error) {
     res.status(500).json({
       Error: `Internal server ${error}`,
@@ -114,16 +115,42 @@ export const AddToWishList = async (req: Request, res: Response) => {
   }
 };
 
-export const Rating = async (req: Request, res: Response)=>{
-  const {_id} = req.user
-  const {prodId, star} = req.body
-  const product = await ProductModel.findById(prodId)
-  console.log(product);
-  
+export const Rating = async (req: Request, res: Response) => {
+  const { _id } = req.user;
+  const { prodId, star } = req.body;
+  const product = await ProductModel.findById(prodId);
 
-  const alreadyRated = product?.ratings.find((userId)=>userId.postedby.toString() === _id.toString())
+  const alreadyRated = product?.ratings.includes(_id.toString());
+  if(alreadyRated){
+    const rate = await ProductModel.updateOne({
+      ratings: {$elemMatch : alreadyRated}
+    },
+    {
+      $set: {"ratings.$.star": star}
+    },
+    {
+      new: true
+    })
+    return res.status(200).json(rate)
+  }else{
+    const rating = await ProductModel.findByIdAndUpdate(prodId, 
+      {
+        $push: {
+          ratings: {
+            star: star,
+            postedby: _id
+          }
+        }
+      },
+      {
+        new : true
+      }
+      )
+    return res.status(200).json(rating)
 
-}
+  }
+};
+
 export const GetSingleProduct = async (req: Request, res: Response) => {
   try {
     //Request dot Query(req.query) is use to sort, filter or cause a limit of views to what you want to see in the getAll http method.
