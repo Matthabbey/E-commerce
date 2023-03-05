@@ -9,8 +9,9 @@ export interface ProductInstance {
   brand: string;
   quantity: number;
   images: [];
-  color: string;
+  color: string; 
   ratings: [];
+  totalratings: string|number
 }
 // Declare the Schema of the Mongo model
  export const productSchema = new mongoose.Schema<ProductInstance>(
@@ -57,6 +58,10 @@ export interface ProductInstance {
     color: {
       type: String,
       required: true,
+    },
+    totalratings: {
+      type: String,
+      default: 0
     },
     ratings: [
       {

@@ -114,6 +114,16 @@ export const AddToWishList = async (req: Request, res: Response) => {
   }
 };
 
+export const Rating = async (req: Request, res: Response)=>{
+  const {_id} = req.user
+  const {prodId, star} = req.body
+  const product = await ProductModel.findById(prodId)
+  console.log(product);
+  
+
+  const alreadyRated = product?.ratings.find((userId)=>userId.postedby.toString() === _id.toString())
+
+}
 export const GetSingleProduct = async (req: Request, res: Response) => {
   try {
     //Request dot Query(req.query) is use to sort, filter or cause a limit of views to what you want to see in the getAll http method.
