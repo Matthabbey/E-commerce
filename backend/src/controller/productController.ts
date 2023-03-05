@@ -76,8 +76,8 @@ export const AddToWishList = async (req: Request, res: Response) => {
   try {
 
     const user = await UserModel.findById(_id);
-    if(!prodId){
 
+    if(prodId && user){
       const alreadyExist = user?.wishList.includes(prodId.toString());
       
       if (alreadyExist) {
@@ -90,7 +90,7 @@ export const AddToWishList = async (req: Request, res: Response) => {
             new: true,
           }
           );
-          res.json(user);
+         return res.json(user);
         } else {
           let user = await UserModel.findByIdAndUpdate(
             _id,
@@ -102,7 +102,7 @@ export const AddToWishList = async (req: Request, res: Response) => {
               new: true,
             }
             );
-            res.json(user);
+            return res.json(user);
           }
         }
         return res.status(404).json({message: "There is no product matches, add a valid product"})
