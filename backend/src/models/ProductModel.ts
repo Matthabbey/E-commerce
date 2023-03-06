@@ -66,6 +66,7 @@ export interface ProductInstance {
     ratings: [
       {
         star: Number,
+        comment: String,
         postedby: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "UserData",

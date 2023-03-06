@@ -116,38 +116,62 @@ export const AddToWishList = async (req: Request, res: Response) => {
 };
 
 export const Rating = async (req: Request, res: Response) => {
-  const { _id } = req.user;
-  const { prodId, star } = req.body;
-  const product = await ProductModel.findById(prodId);
+  try {
+    const { _id } = req.user;
+    const { prodId, star, comment } = req.body;
+    const product = await ProductModel.findById(prodId);
 
-  const alreadyRated = product?.ratings.includes(_id.toString());
-  if(alreadyRated){
-    const rate = await ProductModel.updateOne({
-      ratings: {$elemMatch : alreadyRated}
-    },
-    {
-      $set: {"ratings.$.star": star}
-    },
-    {
-      new: true
-    })
-    return res.status(200).json(rate)
-  }else{
-    const rating = await ProductModel.findByIdAndUpdate(prodId, 
-      {
-        $push: {
-          ratings: {
-            star: star,
-            postedby: _id
-          }
+    const alreadyRated = product?.ratings.includes(_id.toString());
+    if (alreadyRated) {
+      const rate = await ProductModel.updateOne(
+        {
+          ratings: { $elemMatch: alreadyRated },
+        },
+        {
+          $set: { "ratings.$.star": star, "comment": comment },
+        },
+        {
+          new: true,
         }
+      );
+    } else {
+      const rating = await ProductModel.findByIdAndUpdate(
+        prodId,
+        {
+          $push: {
+            ratings: {
+              star: star,
+              comment: comment,
+              postedby: _id,
+            },
+          },
+        },
+        {
+          new: true,
+        }
+      );
+    }
+    const getallrating = await ProductModel.findById(prodId);
+    let totalRating = getallrating?.ratings.length;
+    let ratingsum = getallrating?.ratings
+      .map((item) => item.star)
+      .reduce((prev, curr) => prev + curr, 0);
+    let actualRating = Math.round(ratingsum / totalRating!);
+    let finalProduct = await ProductModel.findByIdAndUpdate(
+      prodId,
+      {
+        totalratings: actualRating,
       },
       {
-        new : true
+        new: true,
       }
-      )
-    return res.status(200).json(rating)
-
+    );
+    return res.status(200).json(finalProduct);
+  } catch (error) {
+    res.status(500).json({
+      Error: `Internal server ${error}`,
+      route: "/wishlist/product",
+    });
   }
 };
 
