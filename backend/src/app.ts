@@ -11,6 +11,7 @@ import brandRouter from "./routes/brandRoute";
 import blogCategoryRouter from "./routes/blogCategoryRoute";
 import blogRouter from "./routes/blogRoute";
 import usersRouter from "./routes/usersRoute";
+import couponRouter from "./routes/couponRoute";
 import connectMongoDB from "./config/index";
 dotenv.config();
 connectMongoDB();
@@ -33,6 +34,7 @@ app.use("/api/blog", blogRouter);
 app.use("/api/product/category", productCategoryRouter);
 app.use("/api/blog/category", blogCategoryRouter);
 app.use("/api/brand", brandRouter);
+app.use("/api/coupon", couponRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
