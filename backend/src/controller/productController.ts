@@ -19,6 +19,22 @@ export const CreateProduct = async (req: Request, res: Response) => {
   }
 };
 
+export const uploadProductImage = (req: Request, res: Response)=>{
+  try {
+    console.log(req.files);
+    console.log("meeee");
+  
+    
+    
+  } catch (error) {
+    res.status(500).json({
+      Error: `Internal server ${error}`,
+      route: "/product/upload",
+    });
+  }
+  
+}
+
 export const GetAllProducts = async (req: Request, res: Response) => {
   try {
     // Filter
