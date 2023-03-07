@@ -25,13 +25,13 @@ export const cloudinaryUploadImage = async(fileToUpload: file)=>{
     })
 }
 
-// const storage = new CloudinaryStorage({
-//   cloudinary,
-//   params: async (req, file) => {
-//     return {
-//       folder: "E-COMMERCE",
-//     };
-//   },
-// });
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: async (req, file) => {
+    return {
+      folder: "E-COMMERCE",
+    };
+  },
+});
 
-// export const upload = multer({ storage: storage });
+export const upload = multer({ storage: storage });

@@ -52,9 +52,7 @@ export interface ProductInstance {
       type: Number,
       required: true,
     },
-    images: {
-      type: [],
-    },
+    images: [],
     color: {
       type: String,
       required: true,
