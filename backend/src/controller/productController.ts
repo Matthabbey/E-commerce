@@ -19,21 +19,19 @@ export const CreateProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const uploadProductImage = (req: Request, res: Response)=>{
+export const uploadProductImage = (req: Request, res: Response) => {
   try {
-    console.log(req.files);
+    const file = req.files;
+    console.log(file, "2a");
     console.log("meeee");
-  
-    
-    
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       Error: `Internal server ${error}`,
       route: "/product/upload",
     });
   }
-  
-}
+};
 
 export const GetAllProducts = async (req: Request, res: Response) => {
   try {
@@ -144,7 +142,7 @@ export const Rating = async (req: Request, res: Response) => {
           ratings: { $elemMatch: alreadyRated },
         },
         {
-          $set: { "ratings.$.star": star, "comment": comment },
+          $set: { "ratings.$.star": star, comment: comment },
         },
         {
           new: true,

@@ -11,14 +11,20 @@ import {
 } from "../controller/productController";
 import { authMiddleware, isAdmin } from "../middlewares/authRoutes";
 import { productImageResize, uploadPhoto } from "../middlewares/uploadImages";
-import { upload } from "../utilities/cloudinary";
 const router = express.Router();
 
 /* GET home page. */
 router.post("/create", authMiddleware, isAdmin, CreateProduct);
 
 // router.put('/upload/:id', authMiddleware, isAdmin, uploadPhoto.array("images", 10), uploadProductImage, productImageResize)
-router.put('/upload/:id', authMiddleware, isAdmin, uploadProductImage )
+router.post(
+  "/upload/:id",
+  authMiddleware,
+  isAdmin,
+  uploadPhoto.array("images"),
+  productImageResize,
+  uploadProductImage
+);
 router.put("/wishlist", authMiddleware, AddToWishList);
 router.put("/rating", authMiddleware, Rating);
 router.get("/get-products", GetAllProducts);
