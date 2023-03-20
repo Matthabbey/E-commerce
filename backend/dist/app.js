@@ -48,4 +48,8 @@ app.use(function (err, req, res, next) {
     res.status(err.status || 500);
     res.render("error");
 });
+const port = 4000;
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}/users`);
+});
 exports.default = app;

@@ -3,9 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "compile": "tsc -w",
-    "dev": "nodemon ../app.ts"
+    "start": "nodemon 'dist/app.js'",
+    "compile": "tsc -w"
   },
   "dependencies": {
     "@types/bcrypt": "^5.0.0",
