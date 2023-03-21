@@ -21,9 +21,18 @@ export const CreateProduct = async (req: Request, res: Response) => {
 
 export const uploadProductImage = (req: Request, res: Response) => {
   try {
-    const file = req.files;
-    console.log(file, "2a");
-    console.log("meeee");
+    if (!req.file) {
+      console.log("No file received");
+      return res.send({
+        success: false
+      });
+  
+    } else {
+      console.log('file received');
+      return res.send({
+        success: true
+      })
+    }
   } catch (error) {
     console.log(error);
     res.status(500).json({
